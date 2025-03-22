@@ -1,0 +1,64 @@
+name: 构建二进制文件
+on:
+  push: 
+    branches:
+      - main
+  pull_request: 
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  builder_matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+      - name: Setup Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements*.txt
+      - name: Install Linux-specific Dependencies
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mold clang
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          mode: standalone
+          script-name: CIMS.py
+          output-file: CIMS-backend
+          include-data-files: LICENSE=LICENSE
+          disable-console: false
+          file-version: 1.0.0.0
+          product-name: CIMS-backend
+      - name: Build (Linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        uses: Nuitka/Nuitka-Action@main
+        env:
+          CC: clang
+          CXX: clang++
+          LDFLAGS: "-fuse-ld=mold"
+        with:
+          mode: standalone
+          script-name: CIMS.py
+          output-file: CIMS-backend
+
+      - name: Upload unsigned application
+        uses: actions/upload-artifact@v4.4.2
+        with:
+          name: ${{ matrix.os }}
+          path: build/CIMS.dist
