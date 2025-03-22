@@ -46,7 +46,7 @@ for _file in ["./settings.json"] + ["./Datas/{}.json".format(name) for
     try:
         with open(_file) as f:
             json.load(f)
-    except JSONDecodeError | FileNotFoundError:
+    except (JSONDecodeError, FileNotFoundError):
         with open(_file, "w") as f:
             f.write("{}")
 #endregion
@@ -56,7 +56,7 @@ for _file in ["./settings.json"] + ["./Datas/{}.json".format(name) for
 try:
     with open("project_info.json") as f:
         json.load(f)
-except FileNotFoundError | JSONDecodeError:
+except (FileNotFoundError, JSONDecodeError):
     with open("project_info.json", "w ") as f:
         json.dump({
                     "name": "CIMS-backend",
@@ -117,7 +117,7 @@ else:
                 # if _set[part]["port"] not in list(range(-1, 65536)):
                 #     raise KeyError
                 _part_set = False
-            except IndexError | ValueError:
+            except (IndexError, ValueError):
                 _input = input("Invalid input, retry:")
             except KeyError:
                 _input = input("Invalid port, retry:")
