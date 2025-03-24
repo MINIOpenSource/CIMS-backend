@@ -128,6 +128,9 @@ else:
         json.dump(_set, s)
 
     open(".installed", "w").close()
+
+    del ManagementServer
+    import ManagementServer
 #endregion
 
 
