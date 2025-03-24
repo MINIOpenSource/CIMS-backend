@@ -113,7 +113,7 @@ async def command(client_uid:str, command_type:CommandTypes_pb2.CommandTypes, pa
         log.log("Send {command} to {client_uid}, failed.".format(command=command_type, client_uid=client_uid), QuickValues.Log.error)
         raise HTTPException(status_code=404, detail=f"Client not found or not connected: {client_uid}")
     log.log("Send {command} to {client_uid}".format(command=command_type, client_uid=client_uid), QuickValues.Log.info)
-    await servicer.clients[client_uid].write(ClientCommandDeliver_pb2.ClientCommandDeliverScRsp(
+    await servicer.clients[client_uid].write(ClientCommandDeliverScRsp_pb2.ClientCommandDeliverScRsp(
         RetCode=Retcode_pb2.Success,
         Type=command_type,
         Payload=payload
