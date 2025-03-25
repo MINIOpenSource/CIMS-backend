@@ -25,8 +25,8 @@ bash -c "$(curl -sSL raw.githubusercontent.com/MINIOpenSource/CIMS-backend/main/
     *   **Git (Optional):** 如果你想从 GitHub 克隆仓库，则需要安装 Git。
 2. **克隆代码:**
     ```bash
-    git clone https://github.com/kaokao221/ClassIslandManagementServer.py.git
-    cd ClassIslandManagementServer.py
+    git clone https://github.com/MINIOpenSource/CIMS-backend.git
+    cd CIMS-backend
     ```
     *   如果你不使用 Git，可以下载 ZIP 压缩包并解压。
 3. **创建 venv 并安装依赖:**

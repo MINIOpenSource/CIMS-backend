@@ -1,0 +1,2 @@
+git pull
+./venv/bin/python3 -m nuitka --standalone --show-progress --show-memory --onefile --include-package=starlette --include-package=asyncio --include-package=json --include-package=fastapi --include-package=uvicorn --include-package=grpc --include-package=uuid --include-module=ManagementServer --include-module=logger --include-module=Datas --include-module=Protobuf --include-module=BuildInClasses --include-module=QuickValues --output-dir=output ./CIMS.py

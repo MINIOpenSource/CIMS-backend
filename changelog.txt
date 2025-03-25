@@ -1,1 +1,2 @@
 1.0v1: 发行版本
+1.0v1sp0patch1: 新增 nuitka-ubuntu.sh 用于简化构建，更新版本号，更正 README.md 的仓库位置。

@@ -62,7 +62,7 @@ except (FileNotFoundError, JSONDecodeError):
                     "name": "CIMS-backend",
                     "description": "ClassIsland Management Server on Python",
                     "author": "kaokao221",
-                    "version": "1.0.0.0 pioneer release",
+                    "version": "1.0v1sp0patch1",
                     "url": "https://github.com/MINIOpenSource/CIMS-backen.py"
                   }, f)
 #endregion
@@ -190,5 +190,6 @@ elif args.generate_management_preset:
                                                                    port=_set["gRPC"]["port"])
         }, mp)
 else:
+    print("\033[2JWelcome to use CIMS1.0v1sp0patch1")
     asyncio.run(start())
 #endregion
