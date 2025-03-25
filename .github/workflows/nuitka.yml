@@ -25,6 +25,19 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
             **/requirements*.txt
+      - name: Setup toolkits
+        run: pip install grpcio-tools
+      - name: Build protobuf (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: |
+          $protoFiles = Get-ChildItem Protobuf -Recurse -Filter *.proto -File `
+            | ForEach-Object { $_.FullName }
+          python -m grpc_tools.protoc --proto_path=D:\a\CIMS-backend\CIMS-backend\ --python_out=. --grpc_python_out=. $protoFiles
+      - name: Build protobuf (Linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: |
+          find Protobuf/ -type f -name "*.proto" \
+          | xargs python -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=.
       - name: Install Linux-specific Dependencies
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: |
