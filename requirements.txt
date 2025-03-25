@@ -1,12 +1,4 @@
-grpcio
 grpcio-tools
 fastapi
 uvicorn
 starlette
-psutil
-opentelemetry-sdk
-opentelemetry-api
-opentelemetry-exporter-otlp-proto-http
-opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-grpc
-opentelemetry-semantic-conventions
