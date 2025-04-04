@@ -84,7 +84,7 @@ ascii_format = lambda _str: _str.format(BLACK_CHARACTER=BLACK_CHARACTER,
 try:
     columns, lines = os.get_terminal_size()
 except OSError:
-    print(f"{MAGENTA_BACKGROUND}{BRIGHT_RED_CHARACTER}{UNDERLINE}{HIGHLIGHT}Get terminal size failed, CLI will be closed.{RESET}")
+    print(f"{MAGENTA_BACKGROUND}{BRIGHT_RED_CHARACTER}{UNDERLINE}{HIGHLIGHT}Get terminal size failed, Shell will be closed.{RESET}")
     sys.exit(0)
 #endregion
 
@@ -102,7 +102,7 @@ class IncompletedError(NameError):
         pass
 
 
-class CLI:
+class Shell:
     def __init__(self,
                  *args,
                  address:str="127.0.0.1",
@@ -117,12 +117,8 @@ class CLI:
 
         self.websocket = None
 
-    def connect(self):
-        raise IncompletedError
-
-    def loading(self, column, width):
-        raise IncompletedError
-
-    def download(self, src):
-        raise IncompletedError
+    def input_(self, __param:str):
+        __input:list[bytes] = []
+        while __input[-1] not in (b'\r', b'\n'):
+            raise IncompletedError
 

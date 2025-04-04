@@ -1,8 +1,9 @@
 #! -*- coding:utf-8 -*-
 
 #region Only directly run allowed.
-if __name__ !=  "__main__":
+if __name__ != "__main__":
     import sys
+
     sys.exit(0)
 #endregion
 
@@ -24,6 +25,7 @@ import json
 from json import JSONDecodeError
 import os
 import sys
+
 #endregion
 
 
@@ -37,12 +39,11 @@ for _folder in ["./logs", "./Datas", "./Datas/ClassPlan", "./Datas/DefaultSettin
 #endregion
 
 
-
 #region 检查数据文件
 for _file in ["./settings.json"] + ["./Datas/{}.json".format(name) for
                                     name in ["client_status", "clients",
                                              "pre_register", "profile_config"]] + ["./Datas/{}/default.json".format(
-                                name) for name in ["ClassPlan", "DefaultSettings", "Policy", "Subjects", "TimeLayout"]]:
+    name) for name in ["ClassPlan", "DefaultSettings", "Policy", "Subjects", "TimeLayout"]]:
     try:
         with open(_file) as f:
             json.load(f)
@@ -59,12 +60,12 @@ try:
 except (FileNotFoundError, JSONDecodeError):
     with open("project_info.json", "w") as f:
         json.dump({
-                    "name": "CIMS-backend",
-                    "description": "ClassIsland Management Server on Python",
-                    "author": "kaokao221",
-                    "version": "1.0v1sp0patch1",
-                    "url": "https://github.com/MINIOpenSource/CIMS-backen.py"
-                  }, f)
+            "name": "CIMS-backend",
+            "description": "ClassIsland Management Server on Python",
+            "author": "kaokao221",
+            "version": "1.0v1sp0patch2",
+            "url": "https://github.com/MINIOpenSource/CIMS-backend.py"
+        }, f)
 #endregion
 
 
@@ -74,6 +75,7 @@ import logger
 import BuildInClasses
 import QuickValues
 import ManagementServer
+
 #endregion
 
 
@@ -102,35 +104,42 @@ else:
     }
 
     for part in ["gRPC", "api", "command"]:
-        _input = input("{part} host and port(formatted as http://localhost:80 and port must be given):".format(part=part))
+        _input = input(
+            "{part} host and port(formatted as http://localhost:80 and port must be given):".format(part=part))
         _part_set = True
         while _part_set:
             try:
                 if _input.startswith("http://"):
-                    print("HTTP is not safe and HTTPS recommended.\n" if not _input.startswith("http://localhost") else "",
+                    print("HTTP is not safe and HTTPS recommended.\n" if not _input.startswith(
+                        "http://localhost") else "",
                           end="")
                 if not _input.startswith(("https://", "http://")):
                     raise ValueError
                 _set[part]["prefix"] = _input.split(":")[0] + "://"
                 _set[part]["host"] = _input.split(":")[1][2:]
-                _set[part]["port"] = int(_input.split(":")[2])
+                _set[part]["port"] = int(7)
                 # if _set[part]["port"] not in list(range(-1, 65536)):
                 #     raise KeyError
                 _part_set = False
             except (IndexError, ValueError):
-                _input = input("Invalid input, retry:")
+                if _input == "":
+                    _part_set = True
+                else:
+                    _input = input("Invalid input, retry:")
             except KeyError:
                 _input = input("Invalid port, retry:")
 
-    _set["organization_name"] = input("Organization name:")
+    _input = input("Organization name:")
+    _set["organization_name"] = _input if _input != "" else "CIMS Default Organization"
 
     with open("settings.json", "w") as s:
         json.dump(_set, s)
 
     open(".installed", "w").close()
 
-    del ManagementServer
-    import ManagementServer
+    ManagementServer.command.Settings.refresh
+    ManagementServer.api.Settings.refresh
+    ManagementServer.gRPC.Settings.refresh
 #endregion
 
 
@@ -154,6 +163,8 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+
+
 #endregion
 #endregion
 
@@ -165,6 +176,8 @@ async def start():
         ManagementServer.api.start(_set["api"]["port"]),
         ManagementServer.command.start(_set["command"]["port"]),
     )
+
+
 #endregion
 
 
@@ -172,6 +185,7 @@ async def start():
 if args.restore:
     if input("Continue?(y/n with default n)") in ("y", "Y"):
         import os
+
         os.remove(".installed")
         os.remove("settings.json")
         os.remove("ManagementPreset.json")

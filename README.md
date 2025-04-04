@@ -12,7 +12,7 @@
 ## *实验性* 快速部署（适用于 Linux 平台）:
 
 ```bash
-bash -c "$(curl -sSL raw.githubusercontent.com/MINIOpenSource/CIMS-backend/main/install.sh)" && cd CIMS/backend && source venv/bin/activate && python CIMS.py
+bash -c "$(curl -sSL https://raw.githubusercontent.com/MINIOpenSource/CIMS-backend/main/install.sh)" && cd CIMS/backend && source venv/bin/activate && python CIMS.py
 ```
 
 ## 如何使用？

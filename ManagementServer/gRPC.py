@@ -33,19 +33,22 @@ from Protobuf.Server import (ClientCommandDeliverScRsp_pb2, ClientCommandDeliver
                              ClientRegisterScRsp_pb2, ClientRegisterScRsp_pb2_grpc)
 from Protobuf.Service import (ClientCommandDeliver_pb2, ClientCommandDeliver_pb2_grpc,
                               ClientRegister_pb2, ClientRegister_pb2_grpc)
+
+
 #endregion
 
 
 #region 导入配置文件
 class _Settings:
     def __init__(self):
-        self.conf_name:str = "settings.json"
-        self.conf_dict:dict = json.load(open(self.conf_name))
+        self.conf_name: str = "settings.json"
+        self.conf_dict: dict = json.load(open(self.conf_name))
 
     @property
     async def refresh(self) -> dict:
         self.conf_dict = json.load(open(self.conf_name))
         return self.conf_dict
+
 
 Settings = _Settings()
 #endregion
@@ -53,6 +56,8 @@ Settings = _Settings()
 
 #region 内建辅助函数和辅助参量
 log = logger.Logger()
+
+
 #endregion
 #endregion
 
@@ -107,10 +112,11 @@ class ClientCommandDeliverServicer(ClientCommandDeliver_pb2_grpc.ClientCommandDe
 
 
 #region 命令推送器
-async def command(client_uid:str, command_type:CommandTypes_pb2.CommandTypes, payload:bytes=b''):
+async def command(client_uid: str, command_type: CommandTypes_pb2.CommandTypes, payload: bytes = b''):
     servicer = ClientCommandDeliverServicer()
     if client_uid not in servicer.clients:
-        log.log("Send {command} to {client_uid}, failed.".format(command=command_type, client_uid=client_uid), QuickValues.Log.error)
+        log.log("Send {command} to {client_uid}, failed.".format(command=command_type, client_uid=client_uid),
+                QuickValues.Log.error)
         raise HTTPException(status_code=404, detail=f"Client not found or not connected: {client_uid}")
     log.log("Send {command} to {client_uid}".format(command=command_type, client_uid=client_uid), QuickValues.Log.info)
     await servicer.clients[client_uid].write(ClientCommandDeliverScRsp_pb2.ClientCommandDeliverScRsp(
@@ -118,13 +124,15 @@ async def command(client_uid:str, command_type:CommandTypes_pb2.CommandTypes, pa
         Type=command_type,
         Payload=payload
     ))
+
+
 #endregion
 
 
 #region 注册服务
 class ClientRegisterServicer(ClientRegister_pb2_grpc.ClientRegisterServicer):
-    async def Register(self, request:ClientRegisterCsReq_pb2.ClientRegisterCsReq,
-                       context:grpc.aio.ServicerContext) -> ClientRegisterScRsp_pb2.ClientRegisterScRsp:
+    async def Register(self, request: ClientRegisterCsReq_pb2.ClientRegisterCsReq,
+                       context: grpc.aio.ServicerContext) -> ClientRegisterScRsp_pb2.ClientRegisterScRsp:
         clients = Datas.Clients.refresh()
         client_uid = request.clientUid
         client_id = request.clientId
@@ -144,6 +152,8 @@ class ClientRegisterServicer(ClientRegister_pb2_grpc.ClientRegisterServicer):
     async def UnRegister(self, request, context):
         return ClientRegisterScRsp_pb2.ClientRegisterScRsp(Retcode=Retcode_pb2.ServerInternalError,
                                                            Message="Not implemented")
+
+
 #endregion
 
 
@@ -153,9 +163,12 @@ async def start(port=50051):
     ClientRegister_pb2_grpc.add_ClientRegisterServicer_to_server(ClientRegisterServicer(), server)
     ClientCommandDeliver_pb2_grpc.add_ClientCommandDeliverServicer_to_server(ClientCommandDeliverServicer(), server)
     server.add_insecure_port("0.0.0.0:{port}".format(port=port))
-    log.log("Starting gRPC server on {listen_addr}".format(listen_addr="0.0.0.0:{port}".format(port=port)), QuickValues.Log.info)
+    log.log("Starting gRPC server on {listen_addr}".format(listen_addr="0.0.0.0:{port}".format(port=port)),
+            QuickValues.Log.info)
     await server.start()
     await server.wait_for_termination()
+
+
 #endregion
 #endregion
 

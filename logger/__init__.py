@@ -101,6 +101,9 @@ class Logger:
                         )
                     )
         self.logger_file.write("{}\n".format("=" * 120))
+        print("[{}] {}\n".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"), message[0:91]),
+              message, " | ", status, "\n", "=" * 120, sep="")
+        self.logger_file.flush()
         self.logger_file.close()
 
 
