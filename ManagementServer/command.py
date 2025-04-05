@@ -52,7 +52,6 @@ class _Settings:
         self.conf_name: str = "settings.json"
         self.conf_dict: dict = json.load(open(self.conf_name))
 
-    @property
     async def refresh(self) -> dict:
         self.conf_dict = json.load(open(self.conf_name))
         return self.conf_dict
@@ -83,7 +82,7 @@ RESOURCE_TYPES = ["ClassPlan", "DefaultSettings", "Policy", "Subjects", "TimeLay
 
 
 #region Main
-#region 客户端配置文件管理相关 API
+#region 客户端配置文件管理相关 API (/command/datas/)
 @command.get("/command/datas/{resource_type}/create", summary="创建配置文件", tags=["配置文件管理"])
 async def create(resource_type: str, name: str):
     """创建新的配置文件。"""
@@ -171,7 +170,7 @@ async def write(resource_type: str, name: str, request: Request):
 #endregion
 
 
-#region 服务器配置文件管理相关 API
+#region 服务器配置文件管理相关 API (/command/server/)
 @command.get("/command/server/settings")
 async def setting():
     log.log("Settings gotten.", QuickValues.Log.info)
@@ -186,10 +185,33 @@ async def update_settings(request: Request):
         json.dump(request.body(), f)
 
 
+@command.get("/command/server/version")
+async def version():
+    log.log("Server ver gotten.", QuickValues.Log.info)
+    with open("project_info.json") as pi:
+        return {"backend_version": json.load(pi)["version"]}
+
+
+@command.get("/command/server/ManagementPreset.json")
+async def mp():
+    log.log("Management preset gotten.", QuickValues.Log.info)
+    with open("ManagementPreset.json", "w") as mp:
+        json.dump({
+            "ManagementServerKind": 1,
+            "ManagementServer": "{prefix}://{host}:{port}".format(prefix=Settings.conf_dict["api"]["prefix"],
+                                                                  host=Settings.conf_dict["api"]["host"],
+                                                                  port=Settings.conf_dict["api"]["mp_port"]),
+            "ManagementServerGrpc": "{prefix}://{host}:{port}".format(prefix=Settings.conf_dict["gRPC"]["prefix"],
+                                                                      host=Settings.conf_dict["gRPC"]["host"],
+                                                                      port=Settings.conf_dict["gRPC"]["mp_port"])
+        }, mp)
+    return FileResponse("ManagementPreset.json")
+
+
 #endregion
 
 
-#region 客户端信息管理相关 API
+#region 客户端信息管理相关 API (/command/clients/)
 @command.get("/command/clients/list")
 async def list_client(request: Request):
     log.log("List clients from {client}.".format(
@@ -214,7 +236,7 @@ async def pre_register(id: str, request: Request):
 #endregion
 
 
-#region 指令下发 API
+#region 指令下发 API (/command/client/)
 @command.get("/command/client/{client_uid}/restart")
 async def restart(client_uid: str):
     await gRPC.command(client_uid, CommandTypes_pb2.RestartApp)

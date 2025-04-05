@@ -88,16 +88,19 @@ else:
         "gRPC": {
             "prefix": "http",
             "host": "localhost",
+            "mp_port": 50051,
             "port": 50051
         },
         "api": {
             "prefix": "http",
             "host": "localhost",
+            "mp_port": 50050,
             "port": 50050
         },
         "command": {
             "prefix": "http",
             "host": "localhost",
+            "mp_port": 50052,
             "port": 50052
         },
         "organization_name": "CIMS Default Organization",
@@ -105,7 +108,12 @@ else:
 
     for part in ["gRPC", "api", "command"]:
         _input = input(
-            "{part} host and port(formatted as http://localhost:80 and port must be given):".format(part=part))
+            "{part} host and port used in ManagementPreset.json "
+            "(formatted as {prefix}://{host}:{port} and port must be given)"
+            "(Enter directly to use default settings):".format(part=part,
+                                                               prefix=_set[part]["prefix"],
+                                                               host=_set[part]["host"],
+                                                               port=_set[part]["mp_port"]))
         _part_set = True
         while _part_set:
             try:
@@ -117,17 +125,33 @@ else:
                     raise ValueError
                 _set[part]["prefix"] = _input.split(":")[0] + "://"
                 _set[part]["host"] = _input.split(":")[1][2:]
-                _set[part]["port"] = int(7)
+                _set[part]["mp_port"] = int(_input.split(":")[2])
                 # if _set[part]["port"] not in list(range(-1, 65536)):
                 #     raise KeyError
                 _part_set = False
             except (IndexError, ValueError):
                 if _input == "":
-                    _part_set = True
+                    _part_set = False
                 else:
                     _input = input("Invalid input, retry:")
             except KeyError:
-                _input = input("Invalid port, retry:")
+                _input = input("Invalid input, retry:")
+        if _input != "":
+            _input = input("{part} listening port(Enter directly to use the same as above):".format(part=part))
+            _part_set = True
+            while _part_set:
+                try:
+                    _set[part]["port"] = int(_input)
+                    _part_set = False
+                except ValueError:
+                    if _input == "":
+                        _set[part]["port"] = _set[part]["mp_port"]
+                        _part_set = False
+                    else:
+                        _input = input("Invalid port, retry:")
+        else:
+            _set[part]["port"] = _set[part]["mp_port"]
+            pass
 
     _input = input("Organization name:")
     _set["organization_name"] = _input if _input != "" else "CIMS Default Organization"
@@ -137,9 +161,16 @@ else:
 
     open(".installed", "w").close()
 
-    ManagementServer.command.Settings.refresh
-    ManagementServer.api.Settings.refresh
-    ManagementServer.gRPC.Settings.refresh
+
+    async def refresh():
+        await asyncio.gather(
+            ManagementServer.command.Settings.refresh(),
+            ManagementServer.api.Settings.refresh(),
+            ManagementServer.gRPC.Settings.refresh()
+        )
+
+
+    asyncio.run(refresh())
 #endregion
 
 
@@ -189,19 +220,19 @@ if args.restore:
         os.remove(".installed")
         os.remove("settings.json")
         os.remove("ManagementPreset.json")
-        if input("Remove datas?"):
-            # for _json in ["./Datas/client_status.json", "./Datas/clients.json", "./"]
-            pass
+        # if input("Remove datas?"):
+        #     # for _json in ["./Datas/client_status.json", "./Datas/clients.json", "./"]
+        #     pass
 elif args.generate_management_preset:
     with open("ManagementPreset.json", "w") as mp:
         json.dump({
             "ManagementServerKind": 1,
-            "ManagementServer": "{prefix}{host}:{port}".format(prefix=_set["api"]["prefix"],
-                                                               host=_set["api"]["host"],
-                                                               port=_set["api"]["port"]),
-            "ManagementServerGrpc": "{prefix}{host}:{port}".format(prefix=_set["gRPC"]["prefix"],
-                                                                   host=_set["gRPC"]["host"],
-                                                                   port=_set["gRPC"]["port"])
+            "ManagementServer": "{prefix}://{host}:{port}".format(prefix=_set["api"]["prefix"],
+                                                                  host=_set["api"]["host"],
+                                                                  port=_set["api"]["mp_port"]),
+            "ManagementServerGrpc": "{prefix}://{host}:{port}".format(prefix=_set["gRPC"]["prefix"],
+                                                                      host=_set["gRPC"]["host"],
+                                                                      port=_set["gRPC"]["mp_port"])
         }, mp)
 else:
     print("\033[2JWelcome to use CIMS1.0v1sp0patch1")

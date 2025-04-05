@@ -1,5 +1,7 @@
 # 基于 Python 的适用于 [ClassIsland](https://github.com/classisland/classisland) 的集控服务器
 
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkaokao221%2FClassIslandManagementServer.py.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkaokao221%2FClassIslandManagementServer.py?ref=badge_shield)
+
 [加入讨论区](https://qm.qq.com/ez2uhHJv2w)
 
 集控服务器分为三个部分，分别是[`api`](./ManagementServer/api.py)[`command`](./ManagementServer/command.py)[`gRPC`](./ManagementServer/gRPC.py)，分别用于：
@@ -87,6 +89,9 @@ bash -c "$(curl -sSL https://raw.githubusercontent.com/MINIOpenSource/CIMS-backe
 > 目前所有的 README Guide 和 start.py 都是在 Windows 环境开发的，在 Linux 环境下已经有生产部署的先例，但在出现意料之外的问题时，还请在 commit 中提供更多诊断信息，谢谢！
 
 ## 功能清单
+
+## 羊癫疯 Fossa
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkaokao221%2FClassIslandManagementServer.py.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkaokao221%2FClassIslandManagementServer.py?ref=badge_large)
 
 ## Star 历史
 [![Stargazers over time](https://starchart.cc/kaokao221/ClassIslandManagementServer.py.svg?variant=adaptive)](https://starchart.cc/kaokao221/ClassIslandManagementServer.py)

@@ -35,7 +35,6 @@ class _Settings:
         self.conf_name: str = "settings.json"
         self.conf_dict: dict = json.load(open(self.conf_name))
 
-    @property
     async def refresh(self) -> dict:
         self.conf_dict = json.load(open(self.conf_name))
         return self.conf_dict

@@ -9,6 +9,7 @@ class Logger:
     """
     Enhanced Logger
     """
+
     def __init__(self):
         """
         Enhanced logger
@@ -101,7 +102,7 @@ class Logger:
                         )
                     )
         self.logger_file.write("{}\n".format("=" * 120))
-        print("[{}] {}\n".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"), message[0:91]),
+        print("[{}] ".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")),
               message, " | ", status, "\n", "=" * 120, sep="")
         self.logger_file.flush()
         self.logger_file.close()
@@ -111,5 +112,6 @@ class Logs:
     """
     Unfinished
     """
+
     def __init__(self):
         pass
