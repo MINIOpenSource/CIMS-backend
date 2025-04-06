@@ -316,7 +316,7 @@ async def list_client_status(request: Request) -> list[dict]:
         raise HTTPException(status_code=500, detail="获取客户端状态失败。")
 
 
-@command.post("/command/clients/pro_register")
+@command.post("/command/clients/pre_register")
 @command.put("/command/clients/pre_register")
 @command.get("/command/clients/pre_register")
 async def pre_register_client(data: dict = Body(...)):
