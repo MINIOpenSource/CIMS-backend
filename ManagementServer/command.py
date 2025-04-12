@@ -12,6 +12,7 @@ import QuickValues
 #region 导入辅助库
 import json
 import time
+import asyncio
 #endregion
 
 
@@ -278,6 +279,7 @@ async def list_clients(request: Request) -> list[str]:
         log.log(f"获取客户端列表时出错: {e}", QuickValues.Log.error)
         raise HTTPException(status_code=500, detail="获取客户端列表失败。")
 
+
 @command.get("/command/clients/status")
 async def list_client_status(request: Request) -> list[dict]:
     """获取所有客户端的综合状态信息（包括名称、UID、在线状态等）。"""
@@ -479,6 +481,17 @@ async def send_notification(client_uid: str,
 @command.get("/command/client/{client_uid}/update_data")
 async def update_data(client_uid: str):
     await gRPC.command(client_uid, CommandTypes_pb2.DataUpdated)
+
+@command.post("/command/client/batch_action")
+async def batch_action(data:dict = Body(...)):
+    match data.get("action"):
+        case "send_notification":
+            await asyncio.gather(*[send_notification(uid, **data.get("payload")) for uid in data.get("client_uids")])
+        case "restart":
+            await asyncio.gather(*[restart(uid) for uid in data.get("client_uids")])
+        case "update_data":
+            await asyncio.gather(*[update_data(uid) for uid in data.get("client_uids")])
+
 
 
 #endregion

@@ -5,3 +5,4 @@
 1.1beta1: 对齐 WebUI 的接口，完善操作方法。
 1.1beta1sp1: 修复 API 的 manifest 生成问题。
 1.1beta1sp2: 更正因为保存 JSON 时指定 ASCII 的问题。
+1.1beta2: 实现批量操作能力。
