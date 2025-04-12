@@ -216,7 +216,7 @@ async def update_settings(request: Request):
         new_settings = await request.json()
         # 可以在这里添加验证逻辑，确保新设置包含必要字段
         with open(Settings.conf_name, "w", encoding='utf-8') as f:
-            json.dump(new_settings, f, indent=4, ensure_ascii=False)
+            json.dump(new_settings, f)
         await Settings.refresh()
         log.log("服务器配置已更新。", QuickValues.Log.info)
         # 可能需要通知其他模块配置已更改
@@ -363,7 +363,7 @@ async def delete_pre_registered_client(client_id: str = Query(..., description="
             del Datas.ProfileConfig.pre_registers[client_id]
             # 持久化更改
             with open("Datas/pre_register.json", "w", encoding="utf-8") as f:
-                json.dump(Datas.ProfileConfig.pre_registers, f, indent=4, ensure_ascii=False)
+                json.dump(Datas.ProfileConfig.pre_registers, f)
             log.log(f"预注册客户端 {client_id} 已删除。", QuickValues.Log.info)
             return {"message": f"预注册客户端 {client_id} 已成功删除。"}
         else:
@@ -389,7 +389,7 @@ async def update_pre_registered_client(data: dict = Body(...)):
             Datas.ProfileConfig.pre_registers[client_id] = config
             # 持久化更改
             with open("Datas/pre_register.json", "w", encoding="utf-8") as f:
-                json.dump(Datas.ProfileConfig.pre_registers, f, indent=4, ensure_ascii=False)
+                json.dump(Datas.ProfileConfig.pre_registers, f)
             log.log(f"预注册客户端 {client_id} 的配置已更新。", QuickValues.Log.info)
             return {"message": f"预注册客户端 {client_id} 的配置已成功更新。"}
         else:

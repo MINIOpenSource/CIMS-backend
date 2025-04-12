@@ -63,8 +63,8 @@ except (FileNotFoundError, JSONDecodeError):
             "name": "CIMS-backend",
             "description": "ClassIsland Management Server on Python",
             "author": "kaokao221",
-            "version": "1.1beta1",
-            "url": "https://github.com/MINIOpenSource/CIMS-backend.py"
+            "version": "1.1beta1sp2",
+            "url": "https://github.com/MINIOpenSource/CIMS-backend"
         }, f)
 #endregion
 
