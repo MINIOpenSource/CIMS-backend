@@ -85,13 +85,13 @@ async def manifest(client_uid: str | None = None, version: int = int(time.time()
     profile_config = Datas.ProfileConfig.profile_config
     base_url = "/api/v1/client/"
     config = profile_config.get(client_uid, {"ClassPlan": "default", "TimeLayout": "default", "Subjects": "default",
-                                             "Settings": "default", "Policy": "default"})
+                                             "DefaultSettings": "default", "Policy": "default"})
     return {
         "ClassPlanSource": await _get_manifest_entry(f"{base_url}ClassPlan", config["ClassPlan"], version, host, port),
         "TimeLayoutSource": await _get_manifest_entry(f"{base_url}TimeLayout", config["TimeLayout"], version, host,
                                                       port),
         "SubjectsSource": await _get_manifest_entry(f"{base_url}Subjects", config["Subjects"], version, host, port),
-        "DefaultSettingsSource": await _get_manifest_entry(f"{base_url}DefaultSettings", config["Settings"], version,
+        "DefaultSettingsSource": await _get_manifest_entry(f"{base_url}DefaultSettings", config["DefaultSettings"], version,
                                                            host, port),
         "PolicySource": await _get_manifest_entry(f"{base_url}Policy", config["Policy"], version, host, port),
         "ServerKind": 1,
