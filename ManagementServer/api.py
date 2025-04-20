@@ -82,10 +82,9 @@ async def manifest(client_uid: str | None = None, version: int = int(time.time()
     port = Settings.conf_dict.get("api", {}).get("mp_port", 50050)
 
     """获取指定客户端的配置清单"""
-    profile_config = Datas.ProfileConfig.profile_config
+    profile_config = Datas.ProfileConfig
     base_url = "/api/v1/client/"
-    config = profile_config.get(client_uid, {"ClassPlan": "default", "TimeLayout": "default", "Subjects": "default",
-                                             "DefaultSettings": "default", "Policy": "default"})
+    config = profile_config.read(client_uid)
     return {
         "ClassPlanSource": await _get_manifest_entry(f"{base_url}ClassPlan", config["ClassPlan"], version, host, port),
         "TimeLayoutSource": await _get_manifest_entry(f"{base_url}TimeLayout", config["TimeLayout"], version, host,
