@@ -167,6 +167,12 @@ ManagementPreset.json
 ManagementPreset.json.bak
 settings.json
 
+# User Datas
+Datas/
+
+# Protocol Buffer
+Protobuf/
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

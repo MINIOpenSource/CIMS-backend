@@ -123,7 +123,7 @@ else:
                           end="")
                 if not _input.startswith(("https://", "http://")):
                     raise ValueError
-                _set[part]["prefix"] = _input.split(":")[0] + "://"
+                _set[part]["prefix"] = _input.split(":")[0]
                 _set[part]["host"] = _input.split(":")[1][2:]
                 _set[part]["mp_port"] = int(_input.split(":")[2])
                 # if _set[part]["port"] not in list(range(-1, 65536)):
