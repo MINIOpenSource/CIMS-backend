@@ -169,6 +169,7 @@ settings.json
 
 # User Datas
 Datas/
+!Datas/__init__.py
 
 # Protocol Buffer
 Protobuf/
