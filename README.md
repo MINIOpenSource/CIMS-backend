@@ -13,8 +13,16 @@
 
 ## *实验性* 快速部署（适用于 Linux 平台）:
 
+快速部署将始终安装在 `/www/CIMS/backend` 目录，你可以使用 `rm -rf /www/CIMS/backend` 来彻底移除使用部署脚本部署的 `CIMS-backend`
+
 ```bash
-bash -c "$(curl -sSL https://raw.githubusercontent.com/MINIOpenSource/CIMS-backend/main/install.sh)" && cd CIMS/backend && source venv/bin/activate && python CIMS.py
+bash -c "$(curl -sSL https://raw.githubusercontent.com/MINIOpenSource/CIMS-backend/main/install.sh)"
+```
+
+启动
+
+```bash
+cd /www/CIMS/backend && source venv/bin/activate && python CIMS.py
 ```
 
 ## 如何使用？
@@ -55,7 +63,7 @@ bash -c "$(curl -sSL https://raw.githubusercontent.com/MINIOpenSource/CIMS-backe
     这将会构建 `.proto` 文件生成对应的 Python 代码，以用于 gRPC 通信。
 5. **启动服务器:**
     *   **使用 `CIMS.py` :**
-        > 第一次启动时，会引导配置一些基础信息
+        > 第一次启动时，会进行引导配置
         ```bash
         ./venv/Scripts/python.exe CIMS.py
         # Windows 环境
@@ -85,10 +93,16 @@ bash -c "$(curl -sSL https://raw.githubusercontent.com/MINIOpenSource/CIMS-backe
 6. **访问 API:**
    * 你可以在浏览器中访问 `http://127.0.0.1:50050/docs` (或你设置的端口)查看 API 文档.
 
-> ## 注意
-> 目前所有的 README Guide 和 start.py 都是在 Windows 环境开发的，在 Linux 环境下已经有生产部署的先例，但在出现意料之外的问题时，还请在 commit 中提供更多诊断信息，谢谢！
-
 ## 功能清单
+
+- [x]分发文件
+- [x]发送通知
+- [x]重启客户端
+- [x]批量操作
+
+#### 下一个版本更新
+
+- [ ]实验性的分用户管理能力
 
 ## 羊癫疯 Fossa
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkaokao221%2FClassIslandManagementServer.py.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkaokao221%2FClassIslandManagementServer.py?ref=badge_large)
