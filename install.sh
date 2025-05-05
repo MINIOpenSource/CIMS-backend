@@ -2,7 +2,7 @@
 
 # 定义仓库 URL 和目标目录
 REPO_URL="https://github.com/MINIOpenSource/CIMS-backend.git"
-DEST_DIR="./CIMS/backend"
+DEST_DIR="/www/CIMS/backend"
 
 # 获取操作系统信息以确定发行版
 OS_RELEASE=$(cat /etc/os-release)
@@ -93,7 +93,7 @@ fi
 
 # 激活虚拟环境并安装依赖
 echo "安装依赖..."
-source venv/bin/activate
+source /www/CIMS/backend/venv/bin/activate
 pip3 install -r requirements.txt
 python3 -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. ./Protobuf/Client/ClientCommandDeliverScReq.proto ./Protobuf/Client/ClientRegisterCsReq.proto ./Protobuf/Command/HeartBeat.proto ./Protobuf/Command/SendNotification.proto ./Protobuf/Enum/CommandTypes.proto ./Protobuf/Enum/Retcode.proto ./Protobuf/Server/ClientCommandDeliverScRsp.proto ./Protobuf/Server/ClientRegisterScRsp.proto ./Protobuf/Service/ClientCommandDeliver.proto ./Protobuf/Service/ClientRegister.proto
 if [ $? -ne 0 ]; then
