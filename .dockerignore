@@ -1,0 +1,16 @@
+.idea
+.git
+.gitattributes
+.venv
+#Datas/client_status.json
+#Datas/clients.json
+#Datas/pre_register.json
+#Datas/profile_config.json
+#Datas/{ClassPlan,DefaultSettings,Policy,Subjects,TimeLayout}/*
+#!Datas/{ClassPlan,DefaultSettings,Policy,Subjects,TimeLayout}/default.json
+ManagementServer.vercel
+vercel.json
+Protobuf/**/*_pb2_grpc.py
+Protobuf/**/*_pb2.py
+*.md
+*.ipynb
