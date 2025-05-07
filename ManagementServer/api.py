@@ -94,7 +94,7 @@ async def manifest(client_uid: str | None = None, version: int = int(time.time()
                                                            host, port),
         "PolicySource": await _get_manifest_entry(f"{base_url}Policy", config["Policy"], version, host, port),
         "ServerKind": 1,
-        "OrganizationName": Settings.conf_dict.get("api", {}).get("OrganizationName", "CIMS default organization"),
+        "OrganizationName": Settings.conf_dict.get("organization_name", "CIMS default organization"),
     }
 
 
