@@ -151,13 +151,6 @@ class _ProfileConfig:
             self.profile_config = json.load(f)
             return self.profile_config
 
-    def read(self, uid) -> dict[str]:
-        self.refresh()
-        config = self.profile_config.get(uid, {"ClassPlan": "default", "TimeLayout": "default", 
-                                               "Subjects": "default", "DefaultSettings": "default", 
-                                               "Policy": "default"})
-        return config
-
     def register(self, uid, id):
         with open("Datas/pre_register.json") as f:
             try:
