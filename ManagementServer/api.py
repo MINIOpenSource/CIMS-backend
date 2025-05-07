@@ -78,11 +78,10 @@ log = logger.Logger()
 async def manifest(client_uid: str | None = None, version: int = int(time.time())) -> dict:
     log.log("Client {client_uid} get manifest.".format(client_uid=client_uid), QuickValues.Log.info)
     host = (Settings.conf_dict.get("api", {}).get("prefix", "http") + "://" +
-            Settings.conf_dict.get("api").get("host", "127.0.0.1"))
+            Settings.conf_dict.get("api", {}).get("host", "127.0.0.1"))
     port = Settings.conf_dict.get("api", {}).get("mp_port", 50050)
 
-    """获取指定客户端的配置清单"""
-    profile_config = Datas.ProfileConfig
+    profile_config = Datas.ProfileConfig.refresh()
     base_url = "/api/v1/client/"
     config = profile_config.read(client_uid)
     return {

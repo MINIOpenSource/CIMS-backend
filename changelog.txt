@@ -6,3 +6,6 @@
 1.1beta1sp1: 修复 API 的 manifest 生成问题。
 1.1beta1sp2: 更正因为保存 JSON 时指定 ASCII 的问题。
 1.1beta2: 实现批量操作能力。
+1.1beta2sp1: 多了点抽象的东西，修了一个奇怪的问题，并加了 .gitignore 若干。
+1.1beta2sp2: 修复注册设备的问题，改进 API 访问逻辑。
+1.1beta2sp3: 更正 API 分发端口选择问题。

@@ -62,8 +62,8 @@ except (FileNotFoundError, JSONDecodeError):
         json.dump({
             "name": "CIMS-backend",
             "description": "ClassIsland Management Server on Python",
-            "author": "kaokao221",
-            "version": "1.1beta2",
+            "author": "git@miniopensource.com",
+            "version": "1.1beta2sp3",
             "url": "https://github.com/MINIOpenSource/CIMS-backend"
         }, f)
 #endregion
@@ -123,7 +123,7 @@ else:
                           end="")
                 if not _input.startswith(("https://", "http://")):
                     raise ValueError
-                _set[part]["prefix"] = _input.split(":")[0] + "://"
+                _set[part]["prefix"] = _input.split(":")[0]
                 _set[part]["host"] = _input.split(":")[1][2:]
                 _set[part]["mp_port"] = int(_input.split(":")[2])
                 # if _set[part]["port"] not in list(range(-1, 65536)):
@@ -235,6 +235,6 @@ elif args.generate_management_preset:
                                                                       port=_set["gRPC"]["mp_port"])
         }, mp)
 else:
-    print("\033[2JWelcome to use CIMS1.0v1sp0patch1")
+    print("\033[2JWelcome to use CIMS.")
     asyncio.run(start())
 #endregion

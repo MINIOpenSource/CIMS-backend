@@ -135,16 +135,17 @@ class ClientRegisterServicer(ClientRegister_pb2_grpc.ClientRegisterServicer):
         clients = Datas.Clients.refresh()
         client_uid = request.clientUid
         client_id = request.clientId
-        Datas.Clients.register(client_uid, client_id)
         if client_uid in clients:
             log.log("Client {client_uid} registered as {client_id}, but register again.".format(
                 client_uid=client_uid, client_id=client_id), QuickValues.Log.warning)
+            Datas.Clients.register(client_uid, client_id)
             return ClientRegisterScRsp_pb2.ClientRegisterScRsp(Retcode=Retcode_pb2.Registered,
                                                                Message=f"Client already registered: {client_uid}")
         else:
             Datas.ClientStatus.register(client_uid, client_id)
             log.log("Client {client_uid} registered as {client_id}".format(
                 client_uid=client_uid, client_id=client_id), QuickValues.Log.info)
+            Datas.Clients.register(client_uid, client_id)
             return ClientRegisterScRsp_pb2.ClientRegisterScRsp(Retcode=Retcode_pb2.Success,
                                                                Message=f"Client registered: {client_uid}")
 

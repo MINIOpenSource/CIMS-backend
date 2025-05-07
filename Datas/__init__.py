@@ -119,25 +119,6 @@ class _ClientStatus:
 ClientStatus = _ClientStatus()
 
 
-class _Clients:
-    def __init__(self):
-        with open("Datas/clients.json") as f:
-            self.clients: dict[str: str] = json.load(f)
-
-    def refresh(self) -> dict[str: str]:
-        with open("Datas/clients.json") as f:
-            self.clients = json.load(f)
-            return self.clients
-
-    def register(self, uid, id):
-        self.clients[uid] = id
-        with open("Datas/clients.json", "w") as f:
-            json.dump(self.clients, f)
-
-
-Clients = _Clients()
-
-
 class _ProfileConfig:
     def __init__(self):
         with open("Datas/profile_config.json") as f:
@@ -165,6 +146,7 @@ class _ProfileConfig:
                 }
         with open("Datas/profile_config.json", "w") as f:
             json.dump(self.profile_config, f)
+        self.refresh()
 
     def pre_register(self, id, conf=None):
         if conf is None:
@@ -178,7 +160,28 @@ class _ProfileConfig:
         self.pre_registers[id] = conf
         with open("Datas/pre_register.json", "w") as f:
             json.dump(self.pre_registers, f)
-
+        self.refresh()
 
 
 ProfileConfig = _ProfileConfig()
+
+
+class _Clients:
+    def __init__(self):
+        with open("Datas/clients.json") as f:
+            self.clients: dict[str: str] = json.load(f)
+
+    def refresh(self) -> dict[str: str]:
+        with open("Datas/clients.json") as f:
+            self.clients = json.load(f)
+            return self.clients
+
+    def register(self, uid, id):
+        self.clients[uid] = id
+        with open("Datas/clients.json", "w") as f:
+            json.dump(self.clients, f)
+        ProfileConfig.register(uid, id)
+        self.refresh
+
+
+Clients = _Clients()
