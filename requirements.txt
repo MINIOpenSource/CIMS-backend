@@ -10,3 +10,5 @@ opentelemetry-exporter-otlp-proto-http
 opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-grpc
 opentelemetry-semantic-conventions
+sentry-sdk[fastapi]
+python-dotenv

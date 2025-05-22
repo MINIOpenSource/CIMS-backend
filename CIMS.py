@@ -32,6 +32,27 @@ import json
 from json import JSONDecodeError
 import os
 import sys
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from dotenv import load_dotenv
+
+#endregion
+
+#region Sentry 初始化
+def initialize_sentry(dsn: str | None):
+    """根据提供的 DSN 初始化 Sentry SDK。"""
+    if dsn:
+        sentry_sdk.init(
+            dsn=dsn,
+            integrations=[
+                FastApiIntegration()
+            ],
+            traces_sample_rate=1.0,  # 捕获所有事务以便进行性能监控
+            profiles_sample_rate=1.0  # 捕获所有事务的性能分析数据
+        )
+        print("Sentry SDK 初始化成功。")
+    else:
+        print("未找到 SENTRY_DSN, Sentry SDK 未初始化。")
 
 #endregion
 
@@ -162,6 +183,10 @@ import ManagementServer
 
 
 #region 初始化
+load_dotenv()  # 从 .env 文件加载环境变量
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+initialize_sentry(SENTRY_DSN)
+
 initialize_data_directories()
 ensure_data_files_exist()
 load_or_create_project_info()
