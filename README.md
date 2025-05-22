@@ -33,11 +33,11 @@ cd /www/CIMS/backend && source venv/bin/activate && python CIMS.py
     *   **Python:** 确保你的系统已安装 Python 3.8+，推荐 Python 3.12+，推荐自行编译完整的 Python 3.12 & OpenSSL 3 环境。
     *   **Node.js and npm:** 如果你需要使用 WebUI，请确保已安装 Node.js (v22+) 和 npm。
     *   **Git (Optional):** 如果你想从 GitHub 克隆仓库，则需要安装 Git。
-    *   **OpenTelemetry Configuration (for low-resource environments):** This application may use OpenTelemetry for tracing to help monitor and troubleshoot its behavior. If you are deploying in a low-resource environment, consider the following to minimize performance impact:
-        *   **Adjust the sampling rate:** Reducing the frequency of traces can significantly lower overhead.
-        *   **Configure the exporter:** Batch traces and export them less frequently.
-        *   **Disable if non-critical:** If telemetry data is not essential for your deployment and resources are extremely constrained, you might consider disabling OpenTelemetry.
-        *   Refer to the official OpenTelemetry documentation for specific configuration options related to your chosen backend and SDK.
+    *   **OpenTelemetry 配置 (适用于低资源环境):** 此应用程序可能使用 OpenTelemetry进行链路追踪,以帮助监控和排查其行为。如果您在低资源环境中部署,请考虑以下几点以最大限度地减少性能影响:
+        *   **调整采样率:** 降低追踪频率可以显著降低开销。
+        *   **配置导出器:** 批量处理追踪数据并降低导出频率。
+        *   **如果非关键则禁用:** 如果遥测数据对于您的部署并非至关重要,且资源极其受限,您可以考虑禁用 OpenTelemetry。
+        *   有关您选择的后端和 SDK 的特定配置选项,请参阅 OpenTelemetry 官方文档。
 2. **克隆代码:**
     ```bash
     git clone https://github.com/MINIOpenSource/CIMS-backend.git

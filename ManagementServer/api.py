@@ -1,14 +1,13 @@
 #! -*- coding:utf-8 -*-
 """
-FastAPI application for CIMS (ClassIsland Management Server) API.
+CIMS (ClassIsland 管理服务器) API 的 FastAPI 应用程序。
 
-This module defines the API endpoints for client configuration distribution,
-external operations like settings refresh, and manages server startup.
-It uses FastAPI for creating web APIs and uvicorn for serving the application.
+本模块定义了用于客户端配置分发、设置刷新等外部操作的 API 端点,
+并管理服务器的启动。它使用 FastAPI 创建 Web API,并使用 uvicorn 为应用程序提供服务。
 """
 
 #region Presets
-#region Import project built-in libraries
+#region 导入项目内建库
 import Datas
 import logger
 import BuildInClasses
@@ -16,13 +15,13 @@ import QuickValues
 #endregion
 
 
-#region Import auxiliary libraries
+#region 导入辅助库
 import time
 import json
 #endregion
 
 
-#region Import FastAPI related libraries
+#region 导入 FastAPI 相关库
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Query
@@ -35,24 +34,24 @@ from fastapi.exceptions import HTTPException
 #endregion
 
 
-#region Import configuration file
+#region 导入配置文件
 class _Settings:
     """
-    Manages API server settings loaded from a JSON configuration file.
+    管理从 JSON 配置文件加载的 API 服务器设置。
     """
     def __init__(self):
         """
-        Initializes settings by loading them from "settings.json".
+        通过从 "settings.json" 加载来初始化设置。
         """
         self.conf_name: str = "settings.json"
         self.conf_dict: dict = json.load(open(self.conf_name))
 
     async def refresh(self) -> dict:
         """
-        Reloads the settings from the configuration file.
+        从配置文件重新加载设置。
 
-        Returns:
-            dict: The reloaded settings dictionary.
+        返回:
+            dict: 重新加载后的设置字典。
         """
         self.conf_dict = json.load(open(self.conf_name))
         return self.conf_dict
@@ -62,8 +61,8 @@ Settings = _Settings()
 #endregion
 
 
-#region Define API
-# Initializes the FastAPI application and adds CORS middleware.
+#region 定义 API
+# 初始化 FastAPI 应用程序并添加 CORS 中间件。
 api = FastAPI()
 api.add_middleware(
     CORSMiddleware,
@@ -76,20 +75,20 @@ api.add_middleware(
 #endregion
 
 
-#region Built-in helper functions and parameters
+#region 内建辅助函数和辅助参量
 async def _get_manifest_entry(base_url: str, name: str, version: int, host: str, port: int) -> dict:
     """
-    Generates a manifest entry dictionary.
+    生成清单条目字典。
 
-    Args:
-        base_url (str): The base URL for the resource.
-        name (str): The name of the resource.
-        version (int): The version of the resource.
-        host (str): The host of the server.
-        port (int): The port of the server.
+    参数:
+        base_url (str): 资源的基础 URL。
+        name (str): 资源的名称。
+        version (int): 资源的版本。
+        host (str): 服务器的主机名。
+        port (int): 服务器的端口号。
 
-    Returns:
-        dict: A dictionary representing the manifest entry.
+    返回:
+        dict: 表示清单条目的字典。
     """
     return {
         "Value": "{host}:{port}{base_url}?name={name}".format(
@@ -104,21 +103,21 @@ log = logger.Logger()
 #endregion
 
 
-#region Main
-#region Configuration file distribution APIs
+#region 主程序
+#region 配置文件分发 APIs
 @api.get("/api/v1/client/{client_uid}/manifest")
 async def manifest(client_uid: str | None = None, version: int = int(time.time())) -> dict:
     """
-    Provides the client manifest with URLs to various configuration files.
+    提供客户端清单,其中包含指向各种配置文件的 URL。
 
-    Args:
-        client_uid (str | None, optional): The unique identifier of the client. Defaults to None.
-        version (int, optional): The version timestamp for the manifest entries. Defaults to current time.
+    参数:
+        client_uid (str | None, optional): 客户端的唯一标识符。默认为 None。
+        version (int, optional): 清单条目的版本时间戳。默认为当前时间。
 
-    Returns:
-        dict: A dictionary containing manifest entries for different configuration resources.
+    返回:
+        dict: 包含不同配置资源清单条目的字典。
     """
-    log.log("Client {client_uid} get manifest.".format(client_uid=client_uid), QuickValues.Log.info)
+    log.log("客户端 {client_uid} 获取清单。".format(client_uid=client_uid), QuickValues.Log.info)
     host = (Settings.conf_dict.get("api", {}).get("prefix", "http") + "://" +
             Settings.conf_dict.get("api", {}).get("host", "127.0.0.1"))
     port = Settings.conf_dict.get("api", {}).get("mp_port", 50050)
@@ -136,32 +135,32 @@ async def manifest(client_uid: str | None = None, version: int = int(time.time()
                                                            host, port),
         "PolicySource": await _get_manifest_entry(f"{base_url}Policy", config["Policy"], version, host, port),
         "ServerKind": 1,
-        "OrganizationName": Settings.conf_dict.get("api", {}).get("OrganizationName", "CIMS default organization"),
+        "OrganizationName": Settings.conf_dict.get("api", {}).get("OrganizationName", "CIMS 默认组织"),
     }
 
 
 @api.get("/api/v1/client/{resource_type}")
 async def policy(resource_type: str, name: str) -> dict:
     """
-    Serves specific configuration files based on resource type and name.
+    根据资源类型和名称提供特定的配置文件。
 
-    Args:
-        resource_type (str): The type of the resource requested (e.g., "ClassPlan", "Policy").
-        name (str): The name of the specific configuration file.
+    参数:
+        resource_type (str): 请求的资源类型 (例如 "ClassPlan", "Policy")。
+        name (str): 特定配置文件的名称。
 
-    Raises:
-        HTTPException: If the resource_type is invalid.
+    引发:
+        HTTPException: 如果 resource_type 无效。
 
-    Returns:
-        dict: The content of the requested configuration file.
+    返回:
+        dict: 请求的配置文件的内容。
     """
     match resource_type:
         case "ClassPlan" | "DefaultSettings" | "Policy" | "Subjects" | "TimeLayout":
-            log.log("{resource_type}[{name}] gotten.".format(resource_type=resource_type, name=name),
+            log.log("获取 {resource_type}[{name}]。".format(resource_type=resource_type, name=name),
                     QuickValues.Log.info)
             return getattr(Datas, resource_type).read(name)
         case _:
-            log.log("Unexpected {resource_type}[{name}] gotten.".format(resource_type=resource_type, name=name),
+            log.log("获取意外的 {resource_type}[{name}]。".format(resource_type=resource_type, name=name),
                     QuickValues.Log.error)
             raise HTTPException(status_code=404)
 
@@ -169,40 +168,40 @@ async def policy(resource_type: str, name: str) -> dict:
 #endregion
 
 
-#region External operation methods
+#region 外部操作方法
 @api.get("/api/refresh")
 async def refresh() -> None:
     """
-    Refreshes the server settings by reloading the configuration file.
+    通过重新加载配置文件来刷新服务器设置。
     """
-    log.log("Settings refreshed.", QuickValues.Log.info)
-    _ = await Settings.refresh() # Ensure await is used for async function
+    log.log("设置已刷新。", QuickValues.Log.info)
+    _ = await Settings.refresh() # 确保对异步函数使用 await
     return None
 
 
 #endregion
 
 
-#region Start function
+#region 启动函数
 async def start(port: int = 50050):
     """
-    Starts the FastAPI application server using uvicorn.
+    使用 uvicorn 启动 FastAPI 应用程序服务器。
 
-    Args:
-        port (int, optional): The port number to run the server on. Defaults to 50050.
+    参数:
+        port (int, optional): 服务器运行的端口号。默认为 50050。
     """
     config = uvicorn.Config(app=api, port=port, host="0.0.0.0", log_level="debug")
     server = uvicorn.Server(config)
     await server.serve()
-    log.log("API server successfully start on {port}".format(port=port), QuickValues.Log.info)
+    log.log("API 服务器成功启动于端口 {port}".format(port=port), QuickValues.Log.info)
 
 
 #endregion
 #endregion
 
 
-#region Direct execution handler
-# Handles the case where the script is run directly, which is not allowed.
+#region 直接执行处理
+# 处理脚本被直接运行时的情况 (不允许)。
 if __name__ == "__main__":
-    log.log(message="Directly started, refused.", status=QuickValues.Log.error)
+    log.log(message="脚本被直接启动,已拒绝。", status=QuickValues.Log.error)
 #endregion

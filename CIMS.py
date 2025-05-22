@@ -1,10 +1,9 @@
 #! -*- coding:utf-8 -*-
 """
-CIMS (ClassIsland Management Server) Backend Main Script.
+CIMS (ClassIsland 管理服务器) 后端主脚本。
 
-This script initializes and starts the CIMS backend, including gRPC, API, and command servers.
-It handles first-time setup, data directory initialization, configuration loading,
-and command-line argument parsing.
+本脚本负责初始化并启动 CIMS 后端服务,包括 gRPC、API 和命令服务器。
+它处理首次运行设置、数据目录初始化、配置加载以及命令行参数解析。
 """
 
 #region Only directly run allowed.
@@ -16,8 +15,8 @@ if __name__ != "__main__":
 
 
 #region Presets
-#region First run detection
-# Checks if the application has been run before by looking for a ".installed" file.
+#region 首次运行判定
+# 通过检查 ".installed" 文件判断应用程序是否首次运行。
 try:
     open(".installed").close()
     installed = True
@@ -26,7 +25,7 @@ except FileNotFoundError:
 #endregion
 
 
-#region Import auxiliary libraries
+#region 导入辅助库
 import argparse
 import asyncio
 import json
@@ -36,9 +35,9 @@ import sys
 
 #endregion
 
-#region Helper Functions for Initialization
+#region 初始化辅助函数
 def initialize_data_directories():
-    """Creates necessary data directories if they don't exist."""
+    """如果数据目录不存在,则创建它们。"""
     for _folder in ["./logs", "./Datas", "./Datas/ClassPlan", "./Datas/DefaultSettings",
                     "./Datas/Policy", "./Datas/Subjects", "./Datas/TimeLayout"]:
         try:
@@ -47,7 +46,7 @@ def initialize_data_directories():
             pass
 
 def ensure_data_files_exist():
-    """Ensures essential JSON data files exist and are valid JSON, creating empty ones if not."""
+    """确保必要的 JSON 数据文件存在且为有效的 JSON 格式,如果不存在或格式无效则创建空文件。"""
     files_to_check = ["./settings.json"] + \
                      ["./Datas/{}.json".format(name) for name in ["client_status", "clients", "pre_register", "profile_config"]] + \
                      ["./Datas/{}/default.json".format(name) for name in ["ClassPlan", "DefaultSettings", "Policy", "Subjects", "TimeLayout"]]
@@ -60,7 +59,7 @@ def ensure_data_files_exist():
                 f.write("{}")
 
 def load_or_create_project_info():
-    """Ensures project_info.json exists and is valid JSON, creating a default one if not."""
+    """确保 project_info.json 文件存在且为有效的 JSON 格式,如果不存在或格式无效则创建默认的项目信息文件。"""
     try:
         with open("project_info.json") as f:
             json.load(f)
@@ -75,7 +74,7 @@ def load_or_create_project_info():
             }, f)
 
 async def refresh_management_server_settings():
-    """Refreshes settings for all management servers."""
+    """刷新所有管理服务器的设置。"""
     await asyncio.gather(
         ManagementServer.command.Settings.refresh(),
         ManagementServer.api.Settings.refresh(),
@@ -84,20 +83,20 @@ async def refresh_management_server_settings():
 
 def perform_first_run_setup(settings_dict: dict) -> dict:
     """
-    Handles the first-time setup process by prompting the user for server configurations
-    and organization name. Modifies and returns the settings dictionary.
+    处理首次运行的设置过程,提示用户输入服务器配置和组织名称。
+    修改并返回设置字典。
 
-    Args:
-        settings_dict (dict): The default settings dictionary.
+    参数:
+        settings_dict (dict): 默认设置字典。
 
-    Returns:
-        dict: The updated settings dictionary after user input.
+    返回:
+        dict: 用户输入后的更新设置字典。
     """
     for part in ["gRPC", "api", "command"]:
         _input = input(
-            "{part} host and port used in ManagementPreset.json "
-            "(formatted as {prefix}://{host}:{port} and port must be given)"
-            "(Enter directly to use default settings):".format(part=part,
+            "{part} 在 ManagementPreset.json 中使用的主机和端口 "
+            "(格式为 {prefix}://{host}:{port} 且必须提供端口)"
+            "(直接回车使用默认设置):".format(part=part,
                                                                prefix=settings_dict[part]["prefix"],
                                                                host=settings_dict[part]["host"],
                                                                port=settings_dict[part]["mp_port"]))
@@ -105,7 +104,7 @@ def perform_first_run_setup(settings_dict: dict) -> dict:
         while _part_set:
             try:
                 if _input.startswith("http://"):
-                    print("HTTP is not safe and HTTPS recommended.\n" if not _input.startswith(
+                    print("HTTP 不安全,推荐使用 HTTPS。\n" if not _input.startswith(
                         "http://localhost") else "",
                           end="")
                 if not _input.startswith(("https://", "http://")):
@@ -118,11 +117,11 @@ def perform_first_run_setup(settings_dict: dict) -> dict:
                 if _input == "":
                     _part_set = False
                 else:
-                    _input = input("Invalid input, retry:")
-            except KeyError: # Should not happen with current logic, but good for robustness
-                _input = input("Invalid input (KeyError), retry:")
+                    _input = input("输入无效,请重试:")
+            except KeyError: # 理论上不应发生,但为稳健性保留
+                _input = input("输入无效 (KeyError),请重试:")
         if _input != "":
-            _input_port = input("{part} listening port(Enter directly to use the same as above):".format(part=part))
+            _input_port = input("{part} 监听端口(直接回车使用与上述相同的端口):".format(part=part))
             _port_set_loop = True
             while _port_set_loop:
                 try:
@@ -133,11 +132,11 @@ def perform_first_run_setup(settings_dict: dict) -> dict:
                         settings_dict[part]["port"] = settings_dict[part]["mp_port"]
                         _port_set_loop = False
                     else:
-                        _input_port = input("Invalid port, retry:")
+                        _input_port = input("端口无效,请重试:")
         else:
             settings_dict[part]["port"] = settings_dict[part]["mp_port"]
 
-    _org_name_input = input("Organization name:")
+    _org_name_input = input("组织名称:")
     settings_dict["organization_name"] = _org_name_input if _org_name_input != "" else "CIMS Default Organization"
 
     with open("settings.json", "w") as s:
@@ -148,7 +147,7 @@ def perform_first_run_setup(settings_dict: dict) -> dict:
 #endregion
 
 
-#region Import built-in project libraries
+#region 导入项目内建库
 import Datas
 import logger
 import BuildInClasses
@@ -158,17 +157,17 @@ import ManagementServer
 #endregion
 
 
-#region First run
+#region 首次运行
 #endregion
 
 
-#region Initialization
+#region 初始化
 initialize_data_directories()
 ensure_data_files_exist()
 load_or_create_project_info()
 
-# Handles the first-time setup process if ".installed" file is not found.
-# Prompts user for server configurations and organization name.
+# 如果 ".installed" 文件未找到,则处理首次运行的设置过程。
+# 提示用户输入服务器配置和组织名称。
 if installed:
     with open("settings.json") as s:
         _set = json.load(s)
@@ -184,24 +183,24 @@ else:
 #endregion
 
 
-#region Argument parsing initialization
-# Initializes command-line argument parser.
+#region 传参初始化
+# 初始化命令行参数解析器。
 parser = argparse.ArgumentParser(
-    description="ClassIsland Management Server Backend"
+    description="ClassIsland 管理服务器后端"
 )
 
 parser.add_argument(
     "-g",
     "--generate-management-preset",
     action="store_true",
-    help="Generate ManagementPreset.json on the program root."
+    help="在程序根目录生成 ManagementPreset.json。"
 )
 
 parser.add_argument(
     "-r",
     "--restore",
     action="store_true",
-    help="Restore, and delete all existed data"
+    help="恢复并删除所有现有数据。"
 )
 
 args = parser.parse_args()
@@ -211,9 +210,9 @@ args = parser.parse_args()
 #endregion
 
 
-#region Starter
+#region 启动器
 async def start():
-    """Starts the gRPC, API, and command servers."""
+    """启动 gRPC、API 和命令服务器。"""
     await asyncio.gather(
         ManagementServer.gRPC.start(_set["gRPC"]["port"]),
         ManagementServer.api.start(_set["api"]["port"]),
@@ -224,10 +223,10 @@ async def start():
 #endregion
 
 
-#region Operation functions
-# Handles command-line arguments to perform actions like restoring data or generating presets.
+#region 操作函数
+# 处理命令行参数以执行恢复数据或生成预设等操作。
 if args.restore:
-    if input("Continue?(y/n with default n)") in ("y", "Y"):
+    if input("是否继续?(y/n, 默认为 n)") in ("y", "Y"):
         import os
 
         os.remove(".installed")
