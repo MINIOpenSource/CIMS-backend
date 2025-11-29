@@ -14,8 +14,8 @@ test:
 	pytest
 
 grpc: clean
-	python -m grpc_tools.protoc -I./src/cims --python_out=./src/cims --grpc_python_out=./src/cims $(shell find ./src/cims/Protobuf -name "*.proto")
+	python -m grpc_tools.protoc -I./cims --python_out=./cims --grpc_python_out=./cims $(shell find ./cims/Protobuf -name "*.proto")
 	python fix_imports.py
 
 clean:
-	find src/cims/Protobuf -name "*_pb2*.py" -delete
+	find cims/Protobuf -name "*_pb2*.py" -delete

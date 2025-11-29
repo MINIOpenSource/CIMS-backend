@@ -55,14 +55,14 @@ jobs:
 
       - name: Build protobuf (Windows)
         if: matrix.os == 'windows-latest'
-        working-directory: src/cims
+        working-directory: cims
         run: |
           $workDir = (Get-Location).Path + "\"
           $protoFiles = Get-ChildItem Protobuf -Recurse -Filter *.proto | ForEach-Object { $_.FullName.Replace($workDir, "") }
           python -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. $protoFiles
       - name: Build protobuf (Linux)
         if: matrix.os == 'ubuntu-latest'
-        working-directory: src/cims
+        working-directory: cims
         run: |
           find Protobuf -type f -name "*.proto" | xargs python -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=.
 
@@ -78,13 +78,13 @@ jobs:
         env:
           NUITKA_CACHE_DIR: ${{ runner.temp }}\\nuitka-cache
         with:
-          script-name: src/cims/CIMS.py
+          script-name: cims/CIMS.py
           output-file: CIMS-backend
-          include-data-dir: src/cims/Datas=Datas
+          include-package-data: cims
           disable-console: false
           product-name: CIMS-backend
-          file-version: 1.2.0
-          product-version: 1.2.0
+          file-version: 2.0.0
+          product-version: 2.0.0beta1
 
       - name: Build (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -94,9 +94,9 @@ jobs:
           CXX: clang++
           LDFLAGS: "-fuse-ld=mold"
         with:
-          script-name: src/cims/CIMS.py
+          script-name: cims/CIMS.py
           output-file: CIMS-backend
-          include-data-dir: src/cims/Datas=Datas
+          include-package-data: cims
           product-name: CIMS-backend
 
       - name: Upload unsigned application

@@ -5,7 +5,7 @@ def fix_protobuf_imports():
     """
     Fixes the imports in the generated protobuf files to be absolute from the package root.
     """
-    protobuf_dir = "src/cims/Protobuf"
+    protobuf_dir = "cims/Protobuf"
     for root, _, files in os.walk(protobuf_dir):
         for file in files:
             if file.endswith("_pb2.py") or file.endswith("_pb2_grpc.py"):

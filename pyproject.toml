@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cims"
-version = "1.2.0"
+version = "2.0.0beta1"
 authors = [
   { name="MINIOpenSource", email="git@miniopensource.com" },
 ]
@@ -48,7 +48,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
 
 [tool.setuptools.package-data]
 "cims.Protobuf" = ["**/*.py"]
