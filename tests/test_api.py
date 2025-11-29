@@ -1,11 +1,12 @@
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock, AsyncMock
-
 from cims.ManagementServer.api import api, get_tenant_id
+from cims.database.models import Tenant, Resource, ProfileConfig
+from cims.database.connection import SessionLocal
+import pytest
 
 
-# Mock the get_tenant_id dependency
-async def override_get_tenant_id():
+# Override dependency to return a test tenant ID
+def override_get_tenant_id():
     return 1
 
 
@@ -14,46 +15,68 @@ api.dependency_overrides[get_tenant_id] = override_get_tenant_id
 client = TestClient(api)
 
 
-def test_manifest_endpoint():
-    with patch("cims.ManagementServer.api.Datas", new_callable=MagicMock) as mock_datas:
-        mock_datas.ProfileConfig.get_profile_config.return_value = {
-            "ClassPlan": "default",
-            "TimeLayout": "default",
-            "Subjects": "default",
-            "Settings": "default",
-            "Policy": "default",
-        }
-
-        response = client.get("/api/v1/client/test_client/manifest")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["ServerKind"] == 1
-        assert "ClassPlanSource" in data
+@pytest.fixture(scope="module")
+def db_session():
+    session = SessionLocal()
+    # Ensure test tenant exists
+    if not session.query(Tenant).filter_by(id=1).first():
+        session.add(Tenant(id=1, name="test_tenant"))
+        session.commit()
+    yield session
+    session.close()
 
 
-def test_policy_endpoint_valid():
-    with patch("cims.ManagementServer.api.Datas", new_callable=MagicMock) as mock_datas:
-        mock_datas.ClassPlan.read.return_value = {"test": "data"}
-
-        response = client.get("/api/v1/client/ClassPlan?name=default")
-
-        assert response.status_code == 200
-        assert response.json() == {"test": "data"}
+def test_read_main():
+    response = client.get("/api/refresh")
+    assert response.status_code == 200
 
 
-def test_policy_endpoint_invalid():
-    response = client.get("/api/v1/client/InvalidResourceType?name=default")
+def test_get_manifest(db_session):
+    # Setup data
+    uid = "test_client_uid"
+    config = {
+        "ClassPlan": "cp1",
+        "TimeLayout": "tl1",
+        "Subjects": "s1",
+        "Settings": "set1",
+        "Policy": "p1",
+    }
 
+    # Clean old data
+    db_session.query(ProfileConfig).filter_by(uid=uid).delete()
+    db_session.commit()
+
+    db_session.add(ProfileConfig(tenant_id=1, uid=uid, config=config))
+    db_session.commit()
+
+    response = client.get(f"/api/v1/client/{uid}/manifest")
+    assert response.status_code == 200
+    data = response.json()
+    assert "ClassPlanSource" in data
+    assert "Version" in data["ClassPlanSource"]
+    assert "cp1" in data["ClassPlanSource"]["Value"]
+
+
+def test_get_policy(db_session):
+    # Setup data
+    res_type = "Policy"
+    name = "default"
+    data_content = {"policy_key": "policy_value"}
+
+    # Clean old data
+    db_session.query(Resource).filter_by(resource_type=res_type, name=name).delete()
+    db_session.commit()
+
+    db_session.add(
+        Resource(tenant_id=1, resource_type=res_type, name=name, data=data_content)
+    )
+    db_session.commit()
+
+    response = client.get(f"/api/v1/client/{res_type}?name={name}")
+    assert response.status_code == 200
+    assert response.json() == data_content
+
+
+def test_get_policy_not_found():
+    response = client.get("/api/v1/client/Policy?name=non_existent")
     assert response.status_code == 404
-
-
-def test_refresh_endpoint():
-    with patch(
-        "cims.ManagementServer.api.Settings", new_callable=MagicMock
-    ) as mock_settings:
-        mock_settings.refresh = AsyncMock()
-
-        response = client.get("/api/refresh")
-
-        assert response.status_code == 200
