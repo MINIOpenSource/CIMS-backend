@@ -41,8 +41,8 @@ func (s *CommandService) UnregisterClientChannel(clientID string) {
 // SendCommand sends a command to a specific client
 func (s *CommandService) SendCommand(clientID string, cmdType Enum.CommandTypes, payload []byte) bool {
 	s.mu.RLock()
+	defer s.mu.RUnlock()
 	ch, ok := s.clientChans[clientID]
-	s.mu.RUnlock()
 
 	if !ok {
 		return false

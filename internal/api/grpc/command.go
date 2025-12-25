@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"sync"
 
 	"github.com/MINIOpenSource/CIMS-backend/internal/proto/Protobuf/Enum"
 	"github.com/MINIOpenSource/CIMS-backend/internal/proto/Protobuf/Server"
@@ -45,12 +46,19 @@ func (s *ClientCommandDeliverServer) ListenCommand(stream Service.ClientCommandD
 
 	cmdChan := make(chan *Server.ClientCommandDeliverScRsp, 10)
 	s.commandService.RegisterClientChannel(clientID, cmdChan)
+	// Ensure Unregister happens before Close to avoid race conditions in SendCommand
+	defer close(cmdChan)
 	defer s.commandService.UnregisterClientChannel(clientID)
+
+	var streamMu sync.Mutex
 
 	// Send commands
 	go func() {
 		for cmd := range cmdChan {
-			if err := stream.Send(cmd); err != nil {
+			streamMu.Lock()
+			err := stream.Send(cmd)
+			streamMu.Unlock()
+			if err != nil {
 				log.Printf("Error sending command to %s: %v", clientID, err)
 				return
 			}
@@ -75,7 +83,10 @@ func (s *ClientCommandDeliverServer) ListenCommand(stream Service.ClientCommandD
 				RetCode: Enum.Retcode_Success,
 				Type:    Enum.CommandTypes_Pong,
 			}
-			if err := stream.Send(pong); err != nil {
+			streamMu.Lock()
+			err := stream.Send(pong)
+			streamMu.Unlock()
+			if err != nil {
 				log.Printf("Error sending Pong to %s: %v", clientID, err)
 				return err
 			}
