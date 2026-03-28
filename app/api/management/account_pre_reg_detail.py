@@ -33,7 +33,7 @@ async def get_pre_reg(
     return _to_out(row)
 
 
-@router.post("/{pre_reg_id}/delete", status_code=204)
+@router.delete("/{pre_reg_id}", status_code=204)
 async def delete_pre_reg(
     account_id: str,
     pre_reg_id: str,
@@ -52,3 +52,27 @@ async def delete_pre_reg(
         raise HTTPException(404, "预注册客户端不存在")
     await db.delete(row)
     await db.commit()
+
+
+@router.post("/{pre_reg_id}/rename")
+async def rename_pre_reg(account_id: str, pre_reg_id: str):
+    """重命名预注册客户端。"""
+    return {"message": "暂未实现"}
+
+
+@router.post("/{pre_reg_id}/enable")
+async def enable_pre_reg(account_id: str, pre_reg_id: str):
+    """启用预注册客户端。"""
+    return {"message": "暂未实现"}
+
+
+@router.post("/{pre_reg_id}/disable")
+async def disable_pre_reg(account_id: str, pre_reg_id: str):
+    """禁用预注册客户端。"""
+    return {"message": "暂未实现"}
+
+
+@router.post("/{pre_reg_id}/config")
+async def config_pre_reg(account_id: str, pre_reg_id: str):
+    """修改预注册客户端使用的档案组。"""
+    return {"message": "暂未实现"}

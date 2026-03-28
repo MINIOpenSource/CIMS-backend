@@ -35,7 +35,7 @@ async def lifespan():
 
 
 # ---- 路径前缀常量 ----
-_CMD_PREFIX = f"/accounts/{TEST_ACCOUNT_ID}/command"
+_RES_PREFIX = f"/account/{TEST_ACCOUNT_ID}"
 
 
 @pytest.mark.asyncio
@@ -69,7 +69,7 @@ async def test_command_endpoints(command_headers):
     ) as ac:
         # Create a ClassPlan
         create_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=test_cp",
+            f"{_RES_PREFIX}/ClassPlan/create?name=test_cp",
             headers=command_headers,
         )
         assert create_res.status_code == 200
@@ -77,14 +77,14 @@ async def test_command_endpoints(command_headers):
 
         # List it
         list_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/list", headers=command_headers
+            f"{_RES_PREFIX}/ClassPlan/list", headers=command_headers
         )
         assert list_res.status_code == 200
         assert "test_cp" in list_res.json()
 
         # Delete it
         del_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/delete?name=test_cp",
+            f"{_RES_PREFIX}/ClassPlan/delete?name=test_cp",
             headers=command_headers,
         )
         assert del_res.status_code == 200
@@ -92,13 +92,13 @@ async def test_command_endpoints(command_headers):
 
         # Create again for write tests
         await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=test_cp2",
+            f"{_RES_PREFIX}/ClassPlan/create?name=test_cp2",
             headers=command_headers,
         )
 
         # Write
         write_res = await ac.put(
-            f"{_CMD_PREFIX}/datas/ClassPlan/write?name=test_cp2",
+            f"{_RES_PREFIX}/ClassPlan/write?name=test_cp2",
             json={"nested": {"value": 1}, "preserve": True},
             headers=command_headers,
         )
@@ -106,7 +106,7 @@ async def test_command_endpoints(command_headers):
 
         # Deep Merge Update
         patch_res = await ac.patch(
-            f"{_CMD_PREFIX}/datas/ClassPlan/update?name=test_cp2",
+            f"{_RES_PREFIX}/ClassPlan/update?name=test_cp2",
             json={"nested": {"value": 2}, "new_key": "exists"},
             headers=command_headers,
         )
@@ -114,7 +114,7 @@ async def test_command_endpoints(command_headers):
 
         # Validate via token endpoint
         token_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/token?name=test_cp2",
+            f"{_RES_PREFIX}/ClassPlan/token?name=test_cp2",
             headers=command_headers,
         )
         assert token_res.status_code == 200
@@ -149,7 +149,7 @@ async def test_command_endpoints(command_headers):
             ]
         }
         batch_res = await ac.post(
-            f"{_CMD_PREFIX}/datas/batch",
+            f"{_RES_PREFIX}/batch",
             json=batch_payload,
             headers=command_headers,
         )
@@ -157,12 +157,12 @@ async def test_command_endpoints(command_headers):
         assert batch_res.json()["status"] == "success"
 
         list_tl = await ac.get(
-            f"{_CMD_PREFIX}/datas/TimeLayout/list", headers=command_headers
+            f"{_RES_PREFIX}/TimeLayout/list", headers=command_headers
         )
         assert "test_batch_layout" in list_tl.json()
 
         list_cp = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/list", headers=command_headers
+            f"{_RES_PREFIX}/ClassPlan/list", headers=command_headers
         )
         assert "test_cp2" not in list_cp.json()
 
@@ -230,18 +230,18 @@ async def test_get_client_resource():
     ) as ac:
         # Create and write
         await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=valid_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/create?name=valid_cp_{test_uid}",
             headers=cmd_headers,
         )
         await ac.put(
-            f"{_CMD_PREFIX}/datas/ClassPlan/write?name=valid_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/write?name=valid_cp_{test_uid}",
             json={"valid": True},
             headers=cmd_headers,
         )
 
         # Get token
         token_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/token?name=valid_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/token?name=valid_cp_{test_uid}",
             headers=cmd_headers,
         )
         assert token_res.status_code == 200
@@ -301,7 +301,7 @@ async def test_get_endpoint_corrupted_resource():
         transport=mgr_transport, base_url="http://test"
     ) as ac:
         token_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/token?name=corrupted_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/token?name=corrupted_cp_{test_uid}",
             headers=cmd_headers,
         )
         assert token_res.status_code == 200
@@ -332,31 +332,31 @@ async def test_command_token_endpoint():
     ) as ac:
         # Invalid resource type
         res = await ac.get(
-            f"{_CMD_PREFIX}/datas/InvalidRes/token?name=test",
+            f"{_RES_PREFIX}/InvalidRes/token?name=test",
             headers=cmd_headers,
         )
         assert res.json()["status"] == "error"
 
         # Non-existent resource
         res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/token?name=nonexist_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/token?name=nonexist_{test_uid}",
             headers=cmd_headers,
         )
         assert res.json()["status"] == "error"
 
         # Valid resource — get token and use it
         await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=token_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/create?name=token_cp_{test_uid}",
             headers=cmd_headers,
         )
         await ac.put(
-            f"{_CMD_PREFIX}/datas/ClassPlan/write?name=token_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/write?name=token_cp_{test_uid}",
             json={"hello": "world"},
             headers=cmd_headers,
         )
 
         token_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/token?name=token_cp_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/token?name=token_cp_{test_uid}",
             headers=cmd_headers,
         )
         assert token_res.status_code == 200
@@ -396,16 +396,16 @@ async def test_get_ip_auth_pass():
         transport=mgr_transport, base_url="http://test"
     ) as ac:
         await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=ip_pass_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/create?name=ip_pass_{test_uid}",
             headers=cmd_headers,
         )
         await ac.put(
-            f"{_CMD_PREFIX}/datas/ClassPlan/write?name=ip_pass_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/write?name=ip_pass_{test_uid}",
             json={"ip_test": "pass"},
             headers=cmd_headers,
         )
         token_res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/token?name=ip_pass_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/token?name=ip_pass_{test_uid}",
             headers=cmd_headers,
         )
         token_url = token_res.json()["url"]
@@ -437,11 +437,11 @@ async def test_get_ip_auth_fail():
         transport=mgr_transport, base_url="http://test"
     ) as ac:
         await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=ip_fail_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/create?name=ip_fail_{test_uid}",
             headers=cmd_headers,
         )
         await ac.put(
-            f"{_CMD_PREFIX}/datas/ClassPlan/write?name=ip_fail_{test_uid}",
+            f"{_RES_PREFIX}/ClassPlan/write?name=ip_fail_{test_uid}",
             json={"ip_test": "should_not_see"},
             headers=cmd_headers,
         )
@@ -493,7 +493,7 @@ async def test_command_without_token():
     async with AsyncClient(
         transport=transport, base_url="http://test"
     ) as ac:
-        res = await ac.get(f"{_CMD_PREFIX}/datas/ClassPlan/list")
+        res = await ac.get(f"{_RES_PREFIX}/ClassPlan/list")
         assert res.status_code == 401
 
 
@@ -505,7 +505,7 @@ async def test_command_with_invalid_token():
         transport=transport, base_url="http://test"
     ) as ac:
         res = await ac.get(
-            f"{_CMD_PREFIX}/datas/ClassPlan/list",
+            f"{_RES_PREFIX}/ClassPlan/list",
             headers={"Authorization": "Bearer invalid_token_here"},
         )
         assert res.status_code == 403

@@ -17,7 +17,7 @@ router = APIRouter()
 _sa = require_role(100)
 
 
-@router.post("/list", response_model=list[UserOut])
+@router.get("/list", response_model=list[UserOut])
 async def list_all_users(
     offset: int = 0,
     limit: int = 20,
@@ -29,7 +29,7 @@ async def list_all_users(
     return [_to_out(u) for u in users]
 
 
-@router.post("/search", response_model=list[UserOut])
+@router.get("/search", response_model=list[UserOut])
 async def search_users(
     q: str = "",
     db: AsyncSession = Depends(get_db),

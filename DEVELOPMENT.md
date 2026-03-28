@@ -114,7 +114,7 @@ uv run cims
 
 ```bash
 uv run python -m grpc_tools.protoc \
-  -I. \
+  -Iapi/ \
   --python_out=app/grpc \
   --grpc_python_out=app/grpc \
   --pyi_out=app/grpc \

@@ -28,6 +28,7 @@ from .config_upload import ConfigUploadRecord
 from .pairing import PairingCode
 from .role_permission import RolePermission
 from .pre_registered_client import PreRegisteredClient
+from .invitation import Invitation
 from .engine import AsyncSessionLocal, init_db
 from .session import get_db
 
@@ -56,6 +57,7 @@ __all__ = [
     "PairingCode",
     "RolePermission",
     "PreRegisteredClient",
+    "Invitation",
     "AsyncSessionLocal",
     "init_db",
     "get_db",

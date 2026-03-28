@@ -1,6 +1,7 @@
 """客户端远程控制。
 
-通过 gRPC 长连接向客户端下发实时控制指令，如应用重启或数据同步心跳。
+通过 gRPC 长连接向客户端下发实时控制指令。
+按 NewAPI.md: POST /{client_id}/command/restart, POST /{client_id}/command/update-data
 """
 
 from fastapi import APIRouter, Request
@@ -25,13 +26,13 @@ async def _push_cmd(request: Request, uid: str, cmd_type: int) -> StatusResponse
     return StatusResponse(status="success", message="指令已下发")
 
 
-@router.get("/client/{uid}/restart", response_model=StatusResponse)
-async def restart_app(uid: str, request: Request):
+@router.post("/{client_id}/command/restart", response_model=StatusResponse)
+async def restart_app(client_id: str, request: Request):
     """要求指定客户端重新启动应用。"""
-    return await _push_cmd(request, uid, CommandTypes_pb2.RestartApp)
+    return await _push_cmd(request, client_id, CommandTypes_pb2.RestartApp)
 
 
-@router.get("/client/{uid}/update_data", response_model=StatusResponse)
-async def force_sync(uid: str, request: Request):
+@router.post("/{client_id}/command/update-data", response_model=StatusResponse)
+async def force_sync(client_id: str, request: Request):
     """触发客户端立即拉取并刷新最新配置数据。"""
-    return await _push_cmd(request, uid, CommandTypes_pb2.DataUpdated)
+    return await _push_cmd(request, client_id, CommandTypes_pb2.DataUpdated)

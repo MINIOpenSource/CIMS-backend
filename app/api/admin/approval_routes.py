@@ -21,7 +21,7 @@ router = APIRouter()
 _sa = require_role(100)
 
 
-@router.post("/list", response_model=list[UserOut])
+@router.get("/list", response_model=list[UserOut])
 async def get_pending_users(
     offset: int = 0,
     limit: int = 50,

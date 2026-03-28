@@ -1,6 +1,8 @@
 """命令系统主路由。
 
 聚合数据 CRUD、PATCH 更新、批量操作及客户端实时控制接口。
+此路由仅在 gRPC command 上下文中使用，
+不再被 account_resource / account_client 复用。
 """
 
 from fastapi import APIRouter
@@ -17,16 +19,16 @@ from .batch import router as batch_r
 
 router = APIRouter()
 
-# 挂载资源管理接口
-router.include_router(crud_r, prefix="/datas")
-router.include_router(del_r, prefix="/datas")
-router.include_router(token_r, prefix="/datas")
-router.include_router(write_r, prefix="/datas")
-router.include_router(patch_r, prefix="/datas")
+# 挂载资源管理接口（按 NewAPI.md 的资源路径挂在顶层）
+router.include_router(crud_r)
+router.include_router(del_r)
+router.include_router(token_r)
+router.include_router(write_r)
+router.include_router(patch_r)
+router.include_router(batch_r)
 
 # 挂载客户端监控与控制接口
 router.include_router(status_r)
 router.include_router(control_r)
 router.include_router(notify_r)
 router.include_router(config_r)
-router.include_router(batch_r, prefix="/datas")

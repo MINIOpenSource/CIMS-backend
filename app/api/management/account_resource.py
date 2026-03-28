@@ -1,7 +1,7 @@
 """账户资源管理路由。
 
 提供资源的列表、搜索、创建、上传、删除、重命名、覆盖写入和下载。
-复用 command 模块的 CRUD 逻辑。
+复用 command 模块的数据 CRUD 逻辑。
 """
 
 from fastapi import APIRouter

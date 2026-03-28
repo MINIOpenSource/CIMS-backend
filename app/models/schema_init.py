@@ -21,6 +21,7 @@ _PUBLIC_ONLY = {
     "account_quotas",
     "system_config",
     "reserved_names",
+    "invitations",
 }
 
 

@@ -53,8 +53,8 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
         if user_id:
             request.state.current_user_id = user_id
             return await call_next(request)
-        # 回退：旧式 command 域令牌
-        if "/command" in path:
+        # 回退：旧式 command 域令牌（/account/{id}/... 路径）
+        if path.startswith("/account/"):
             ok = await _check_legacy_token(token, path)
             if ok:
                 return await call_next(request)
@@ -80,7 +80,7 @@ async def _check_legacy_token(token: str, path: str = "") -> bool:
     except RuntimeError:
         pass
     if not tid and path:
-        m = re.match(r"/accounts/([^/]+)/", path)
+        m = re.match(r"/account/([^/]+)/", path)
         if m:
             tid = m.group(1)
     if not tid:
