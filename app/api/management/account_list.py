@@ -31,7 +31,7 @@ def _out(a: Account) -> AccountOut:
     )
 
 
-@router.post("/list", response_model=list[AccountOut])
+@router.get("/list", response_model=list[AccountOut])
 async def list_accounts(
     db: AsyncSession = Depends(get_db),
     user_id: str = Depends(get_current_user_id),

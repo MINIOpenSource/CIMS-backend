@@ -1,6 +1,6 @@
 """远程配置查询路由。
 
-通过下发 gRPC GetClientConfig 指令，异步请求客户端回传其运行时内存配置。
+按 NewAPI.md: GET /{client_id}/command/get-config
 """
 
 import uuid
@@ -13,8 +13,8 @@ from app.grpc.api.Protobuf.Enum import Retcode_pb2, CommandTypes_pb2
 router = APIRouter()
 
 
-@router.get("/client/{uid}/get_config")
-async def fetch_runtime_config(uid: str, config_type: int, request: Request):
+@router.get("/{client_id}/command/get-config")
+async def fetch_runtime_config(client_id: str, config_type: int, request: Request):
     """请求终端上报其当前运行的配置快照。"""
     servicer = getattr(request.app.state, "command_servicer", None)
     if not servicer:
@@ -31,7 +31,7 @@ async def fetch_runtime_config(uid: str, config_type: int, request: Request):
         Payload=config_req.SerializeToString(),
     )
 
-    await servicer.send_command(get_tenant_id(), uid, cmd)
+    await servicer.send_command(get_tenant_id(), client_id, cmd)
     return {
         "status": "success",
         "message": f"请求已下发，ID: {req_id}",

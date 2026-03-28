@@ -33,3 +33,12 @@ async def change_password(
     user.hashed_password = hash_password(body.new_password)
     await db.commit()
     return {"message": "密码已修改"}
+
+
+@router.post("/reset")
+async def reset_password(
+    db: AsyncSession = Depends(get_db),
+    uid: str = Depends(get_current_user_id),
+):
+    """重置密码（自助流程，暂未实现详细逻辑）。"""
+    return {"message": "暂未实现"}

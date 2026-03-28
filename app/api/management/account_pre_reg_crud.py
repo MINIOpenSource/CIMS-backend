@@ -25,7 +25,7 @@ def _to_out(p: PreRegisteredClient) -> PreRegOut:
     )
 
 
-@router.post("/list", response_model=list[PreRegOut])
+@router.get("/list", response_model=list[PreRegOut])
 async def list_pre_regs(
     account_id: str,
     db: AsyncSession = Depends(get_db),
@@ -39,3 +39,25 @@ async def list_pre_regs(
         )
     ).scalars().all()
     return [_to_out(r) for r in rows]
+
+
+@router.get("/search", response_model=list[PreRegOut])
+async def search_pre_regs(
+    account_id: str,
+    q: str = "",
+    db: AsyncSession = Depends(get_db),
+):
+    """搜索预注册客户端。"""
+    rows = (
+        await db.execute(
+            select(PreRegisteredClient).where(
+                PreRegisteredClient.account_id == account_id
+            )
+        )
+    ).scalars().all()
+    if not q:
+        return [_to_out(r) for r in rows]
+    return [
+        _to_out(r) for r in rows
+        if q.lower() in (r.class_identity or "").lower()
+    ]

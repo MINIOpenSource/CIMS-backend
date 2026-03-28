@@ -1,6 +1,6 @@
 """实时通知下发服务。
 
-支持向客户端发送带图标、TTS 语音以及紧急属性的即时通知弹窗。
+按 NewAPI.md: POST /{client_id}/command/send-notification
 """
 
 from fastapi import APIRouter, Request, Body
@@ -14,16 +14,15 @@ from app.grpc.api.Protobuf.Enum import Retcode_pb2, CommandTypes_pb2
 router = APIRouter()
 
 
-@router.post("/client/{uid}/send_notification", response_model=StatusResponse)
+@router.post("/{client_id}/command/send-notification", response_model=StatusResponse)
 async def push_notify(
-    uid: str, request: Request, payload: NotificationPayload = Body(...)
+    client_id: str, request: Request, payload: NotificationPayload = Body(...)
 ):
     """下发格式化的桌面通知。"""
     servicer = getattr(request.app.state, "command_servicer", None)
     if not servicer:
         return StatusResponse(status="error", message="gRPC 通道未开启")
 
-    # 构建 Protobuf 结构
     notify = SendNotification_pb2.SendNotification(**payload.model_dump())
 
     cmd = ClientCommandDeliverScRsp_pb2.ClientCommandDeliverScRsp(
@@ -32,5 +31,5 @@ async def push_notify(
         Payload=notify.SerializeToString(),
     )
 
-    await servicer.send_command(get_tenant_id(), uid, cmd)
+    await servicer.send_command(get_tenant_id(), client_id, cmd)
     return StatusResponse(status="success", message="通知已递送")

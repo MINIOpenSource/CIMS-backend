@@ -71,6 +71,7 @@ CIMS 提供四个独立端口的 API 服务：
   "ManagementServer": "https://{slug}.example.com",
   "ManagementServerGrpc": "grpc://{slug}.example.com",
   "ClassIdentity": "",
+  "PreRegisteredLabel": "三年一班",
   "ManifestUrlTemplate": ""
 }
 ```
@@ -87,8 +88,6 @@ CIMS 提供四个独立端口的 API 服务：
 
 刷新当前会话令牌。
 
-**请求头** — `Authorization: Bearer {token}`
-
 **响应**
 
 ```json
@@ -98,8 +97,6 @@ CIMS 提供四个独立端口的 API 服务：
 #### `POST /token/verify`
 
 验证令牌有效性。
-
-**请求头** — `Authorization: Bearer {token}`
 
 **响应**
 
@@ -111,8 +108,6 @@ CIMS 提供四个独立端口的 API 服务：
 
 注销当前令牌（登出）。
 
-**请求头** — `Authorization: Bearer {token}`
-
 **响应**
 
 ```json
@@ -123,7 +118,7 @@ CIMS 提供四个独立端口的 API 服务：
 
 #### `POST /user/apply`
 
-申请注册新用户。注册后进入 Pending 状态，需管理员审核。用户名可选，留空自动生成。
+申请注册新用户。注册后进入 Pending 状态，需管理员审核。
 
 **请求体**
 
@@ -131,22 +126,9 @@ CIMS 提供四个独立端口的 API 服务：
 {
   "email": "user@example.com",
   "password": "至少12位密码",
-  "username": "可选，留空自动生成",
-  "display_name": "显示名（可选）"
+  "username": "可选",
+  "display_name": "可选"
 }
-```
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `email` | string (email) | ✅ | 用户邮箱 |
-| `password` | string | ✅ | 12~128 位密码 |
-| `username` | string | ❌ | 用户名，留空自动 `user_xxxx` |
-| `display_name` | string | ❌ | 显示名称，默认空 |
-
-**响应**
-
-```json
-{"status": "success", "message": "注册成功，等待管理员审核"}
 ```
 
 #### `POST /user/auth`
@@ -156,164 +138,88 @@ CIMS 提供四个独立端口的 API 服务：
 **请求体**
 
 ```json
-{
-  "email": "user@example.com",
-  "password": "密码"
-}
+{"email": "user@example.com", "password": "密码"}
 ```
 
-**响应（正常登录）**
+**响应（正常）** — `{"token": "会话令牌"}`
 
-```json
-{"token": "会话令牌"}
-```
-
-**响应（需要 2FA）**
-
-```json
-{"requires_2fa": true, "temp_token": "临时令牌"}
-```
+**响应（需 2FA）** — `{"requires_2fa": true, "temp_token": "临时令牌"}`
 
 #### `GET /user/info`
 
 获取当前用户信息。
 
-**响应**
+**响应** — `UserOut`
 
-```json
-{
-  "id": "uuid",
-  "username": "user_a1b2c3d4",
-  "email": "user@example.com",
-  "display_name": "张三",
-  "role_code": "normal",
-  "is_active": true,
-  "can_create_account": false,
-  "created_at": "2026-01-01T00:00:00Z"
-}
-```
-
-#### `POST /user/info/email`
-
-修改邮箱。
-
-**请求体**
-
-```json
-{"email": "new@example.com"}
-```
-
-#### `POST /user/info/username`
-
-修改用户名。
-
-**请求体**
-
-```json
-{"username": "new_username"}
-```
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `username` | string | 3~64 位，字母数字下划线 |
-
-#### `POST /user/info/password/change`
-
-修改密码（需旧密码）。
-
-**请求体**
-
-```json
-{
-  "old_password": "旧密码",
-  "new_password": "至少12位新密码"
-}
-```
-
-### 2FA (TOTP)
+### 2FA (TOTP) `/user/2fa/totp/...`
 
 #### `POST /user/2fa/totp/enable`
 
-启用 TOTP。
-
-**响应**
-
-```json
-{
-  "secret": "BASE32密钥",
-  "uri": "otpauth://totp/...",
-  "recovery_codes": ["code1", "code2", "..."]
-}
-```
+启用 TOTP。返回密钥和恢复码。
 
 #### `POST /user/2fa/totp/confirm`
 
 确认绑定（提交首次 TOTP 码）。
 
-**请求体**
-
-```json
-{"code": "123456"}
-```
+**请求体** — `{"code": "123456"}`
 
 #### `POST /user/2fa/totp/disable`
 
 禁用 TOTP。
 
-**请求体**
-
-```json
-{"password": "当前密码"}
-```
+**请求体** — `{"password": "当前密码"}`
 
 #### `POST /user/2fa/totp/verify`
 
 登录时验证 TOTP。
 
-**请求体**
+**请求体** — `{"temp_token": "临时令牌", "code": "123456"}`
 
-```json
-{"temp_token": "临时令牌", "code": "123456"}
-```
-
-**响应**
-
-```json
-{"token": "正式会话令牌"}
-```
+**响应** — `{"token": "正式会话令牌"}`
 
 #### `POST /user/2fa/totp/recover`
 
 使用恢复码登录。
 
-**请求体**
+**请求体** — `{"temp_token": "临时令牌", "recovery_code": "恢复码"}`
 
-```json
-{"temp_token": "临时令牌", "recovery_code": "恢复码"}
-```
+### 用户信息 `/user/info/...`
+
+#### `GET /user/info/`
+
+获取用户信息（同 `GET /user/info`）。
+
+#### `POST /user/info/email`
+
+修改邮箱。
+
+**请求体** — `{"email": "new@example.com"}`
+
+#### `POST /user/info/username`
+
+修改用户名。
+
+**请求体** — `{"username": "new_username"}`
+
+#### `POST /user/info/password/change`
+
+修改密码（需旧密码）。
+
+**请求体** — `{"old_password": "旧密码", "new_password": "至少12位新密码"}`
+
+#### `POST /user/info/password/reset`
+
+重置密码（自助流程）。
 
 ### 账户管理
 
-#### `POST /account/list`
+#### `GET /account/list`
 
 列出当前用户有权访问的所有账户。
 
 **响应** — `AccountOut[]`
 
-```json
-[
-  {
-    "id": "uuid",
-    "name": "学校名称",
-    "slug": "org-a1b2c3d4",
-    "api_key": "...",
-    "is_active": true,
-    "created_at": "2026-01-01T00:00:00Z"
-  }
-]
-```
-
-#### `POST /account/search?q={keyword}`
+#### `POST /account/search`
 
 搜索账户。
 
@@ -323,24 +229,13 @@ CIMS 提供四个独立端口的 API 服务：
 
 #### `POST /account/apply`
 
-申请创建新账户。需 `can_create_account` 权限。Slug 可选，留空自动生成。
+申请创建新账户。
 
-**请求体**
+**请求体** — `{"name": "学校名称", "slug": "可选"}`
 
-```json
-{"name": "新学校名称", "slug": "可选，留空自动生成"}
-```
+#### `DELETE /account/{account_id}`
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `name` | string | ✅ | 账户名称 |
-| `slug` | string | ❌ | 3~64 位 slug，留空自动 `org-xxxx` |
-
-**响应** — `AccountOut` (201)
-
-#### `POST /account/{account_id}/delete`
-
-停用账户。
+删除/停用账户。
 
 #### `GET /account/{account_id}/info`
 
@@ -352,64 +247,61 @@ CIMS 提供四个独立端口的 API 服务：
 
 修改账户 slug。
 
-**请求体**
-
-```json
-{"slug": "new-slug-name"}
-```
+**请求体** — `{"slug": "new-slug-name"}`
 
 ### 资源管理 `/account/{account_id}/{resource_type}/...`
-
-#### `GET /{resource_type}/create?name={name}`
-
-创建空资源文件。
 
 #### `GET /{resource_type}/list`
 
 列出所有资源文件名。
 
-#### `GET /{resource_type}/delete?name={name}`
+#### `POST /{resource_type}/search`
 
-删除指定资源。
+搜索资源。
 
-#### `GET /{resource_type}/token?name={name}`
+#### `POST /{resource_type}/create`
 
-签发资源访问令牌。
+创建资源。
 
-**响应**
+#### `POST /{resource_type}/upload`
 
-```json
-{"token": "一次性令牌", "url": "/get?token=..."}
-```
+上传资源。
 
-#### `POST /{resource_type}/write?name={name}`
+#### `DELETE /{resource_type}/{resource_id}`
+
+删除资源。
+
+#### `POST /{resource_type}/{resource_id}/rename`
+
+重命名资源。
+
+#### `POST /{resource_type}/{resource_id}`
 
 覆盖写入资源。
 
-**请求体** — 资源 JSON 内容。
+#### `GET /{resource_type}/{resource_id}`
 
-| 参数 | 位置 | 类型 | 必填 | 说明 |
-|------|------|------|------|------|
-| `name` | query | string | ✅ | 资源文件名 |
-| `version` | query | int | ❌ | 乐观锁版本号 |
+下载资源。
 
-#### `PATCH /{resource_type}/update?name={name}`
-
-增量合并更新资源。
-
-**请求体** — 合并用 JSON 内容。
+> 当前实现仍使用 `?name=` 查询参数模式而非路径参数：
+>
+> - `GET /{resource_type}/create?name={name}` — 创建空资源
+> - `GET /{resource_type}/token?name={name}` — 签发访问令牌
+> - `PUT|POST /{resource_type}/write?name={name}` — 覆盖写入
+> - `PATCH /{resource_type}/update?name={name}` — 增量合并更新
+> - `GET|DELETE /{resource_type}/delete?name={name}` — 删除资源
 
 ### 客户端管理 `/account/{account_id}/client/...`
 
-#### `GET /clients/list`
+#### `GET /client/list`
 
 列出已注册客户端 UID。
 
-#### `GET /clients/status`
+#### `GET /client/search`
 
-获取在线客户端状态。
+搜索客户端。
 
-#### `GET /client/{uid}/details`
+#### `GET /client/{client_id}`
 
 查询客户端注册详情及在线状态。
 
@@ -425,15 +317,43 @@ CIMS 提供四个独立端口的 API 服务：
 }
 ```
 
-#### `GET /client/{uid}/restart`
+#### `DELETE /client/{client_id}`
+
+删除客户端。
+
+#### `POST /client/{client_id}/rename`
+
+重命名客户端。
+
+#### `GET /client/{client_id}/status`
+
+获取客户端在线状态。
+
+#### `POST /client/{client_id}/disconnect`
+
+断开客户端连接。
+
+#### `POST /client/{client_id}/disable`
+
+禁用客户端。
+
+#### `POST /client/{client_id}/enable`
+
+启用客户端。
+
+#### `POST /client/{client_id}/config`
+
+修改客户端使用的档案组。
+
+#### `POST /client/{client_id}/command/restart`
 
 重启客户端应用。
 
-#### `GET /client/{uid}/update_data`
+#### `POST /client/{client_id}/command/update-data`
 
 强制客户端同步最新数据。
 
-#### `POST /client/{uid}/send_notification`
+#### `POST /client/{client_id}/command/send-notification`
 
 发送通知。
 
@@ -449,57 +369,147 @@ CIMS 提供四个独立端口的 API 服务：
 }
 ```
 
-#### `GET /client/{uid}/get_config?config_type={type}`
+#### `GET /client/{client_id}/command/get-config`
 
 请求客户端上报运行时配置。
 
+| 参数 | 位置 | 类型 | 说明 |
+|------|------|------|------|
+| `config_type` | query | int | 配置类型枚举 |
+
 ### 配对码管理 `/account/{account_id}/pairing/...`
 
-#### `POST /list`
+#### `GET /pairing/list`
 
 列出配对码。
 
-#### `POST /{pairing_id}/approve`
+#### `GET /pairing/search`
 
-批准配对码。
+搜索配对码。
 
-#### `POST /{pairing_id}/reject`
+#### `POST /pairing/{pairing_id}/reject`
 
 拒绝配对码。
 
+#### `POST /pairing/{pairing_id}/approve`
+
+批准配对码。
+
+#### `POST /pairing/enable`
+
+启用配对码功能。
+
+#### `POST /pairing/disable`
+
+禁用配对码功能。
+
 ### 预注册客户端 `/account/{account_id}/pre-registration/...`
 
-#### `POST /list`
+#### `GET /pre-registration/list`
 
 列出预注册客户端。
 
-#### `GET /{pre_reg_id}`
+#### `GET /pre-registration/search`
+
+搜索预注册客户端。
+
+#### `GET /pre-registration/{pre_reg_id}`
 
 获取预注册客户端信息。
 
-#### `POST /{pre_reg_id}/delete`
+#### `DELETE /pre-registration/{pre_reg_id}`
 
 删除预注册客户端。
 
-#### `GET /{pre_reg_id}/ManagementPreset.json`
+#### `POST /pre-registration/{pre_reg_id}/rename`
+
+重命名预注册客户端。
+
+#### `POST /pre-registration/{pre_reg_id}/enable`
+
+启用预注册客户端。
+
+#### `POST /pre-registration/{pre_reg_id}/disable`
+
+禁用预注册客户端。
+
+#### `GET /pre-registration/{pre_reg_id}/ManagementPreset.json`
 
 下载引导配置。
 
+#### `POST /pre-registration/{pre_reg_id}/config`
+
+修改预注册客户端使用的档案组。
+
+#### `POST /pre-registration/create`
+
+创建预注册客户端。
+
+**请求体** — `{"label": "三年一班", "class_identity": "3-1"}`
+
 ### 访问控制 `/account/{account_id}/access/...`
 
-#### `POST /list`
+#### `GET /access/list`
 
 列出具权用户。
 
+#### `GET /access/search`
+
+搜索具权用户。
+
+#### `GET /access/{user_id}`
+
+获取具权用户信息。
+
+#### `DELETE /access/{user_id}`
+
+移除成员（204 No Content）。
+
+#### `POST /access/{user_id}/rename`
+
+重命名具权用户。
+
+#### `POST /access/{user_id}`
+
+修改具权用户的权限。
+
+**请求体** — `{"role_in_account": "admin"}`
+
 ### 邀请 `/account/{account_id}/invitation/...`
 
-#### `POST /list`
+#### `GET /invitation/list`
 
-列出邀请。
+列出邀请列表。
 
-#### `POST /create`
+#### `POST /invitation/create`
 
 创建邀请。
+
+**请求体**
+
+```json
+{
+  "role_in_account": "member",
+  "max_uses": 1,
+  "expires_at": "2026-12-31T23:59:59Z"
+}
+```
+
+#### `GET /invitation/search`
+
+搜索邀请。
+
+#### `DELETE /invitation/{invitation_id}`
+
+删除邀请。
+
+#### `POST /invitation/{invitation_id}/rename`
+
+重命名邀请。
+
+#### `GET /invitation/{invitation_id}`
+
+获取邀请信息。
 
 ### 批量操作
 
@@ -537,19 +547,28 @@ CIMS 提供四个独立端口的 API 服务：
 
 ### 用户管理
 
-#### `POST /user/list?offset=0&limit=20`
+#### `GET /user/list`
 
 分页查询所有用户。
 
+| 参数 | 位置 | 类型 | 说明 |
+|------|------|------|------|
+| `offset` | query | int | 偏移量（默认 0） |
+| `limit` | query | int | 条数（默认 20） |
+
 **响应** — `UserOut[]`
 
-#### `POST /user/search?q={keyword}`
+#### `GET /user/search`
 
 搜索用户。
 
+| 参数 | 位置 | 类型 | 说明 |
+|------|------|------|------|
+| `q` | query | string | 搜索关键字 |
+
 #### `POST /user/create`
 
-直接创建用户（跳过审核）。用户名可选，留空自动生成。
+直接创建用户（跳过审核）。
 
 **请求体**
 
@@ -561,8 +580,6 @@ CIMS 提供四个独立端口的 API 服务：
   "display_name": "可选"
 }
 ```
-
-**响应** — `UserOut`
 
 #### `GET /user/{user_id}`
 
@@ -585,19 +602,27 @@ CIMS 提供四个独立端口的 API 服务：
 }
 ```
 
-#### `POST /user/{user_id}/delete`
+#### `DELETE /user/{user_id}`
 
 删除用户。
+
+#### `POST /user/{user_id}/rename`
+
+重命名用户。
+
+**请求体** — `{"name": "新用户名"}`
 
 #### `POST /user/{user_id}/password/reset`
 
 重置用户密码（无需旧密码）。
 
-**请求体**
+**请求体** — `{"new_password": "至少12位新密码"}`
 
-```json
-{"new_password": "至少12位新密码"}
-```
+#### `POST /user/{user_id}/password/change`
+
+修改用户密码（需验证旧密码）。
+
+**请求体** — `{"old_password": "旧密码", "new_password": "新密码"}`
 
 ### 用户 2FA 管理
 
@@ -609,15 +634,24 @@ CIMS 提供四个独立端口的 API 服务：
 
 禁用用户 TOTP。
 
+#### `POST /user/{user_id}/2fa/verify`
+
+验证用户 TOTP。
+
 #### `POST /user/{user_id}/2fa/reset`
 
 重置用户 TOTP 密钥。
 
 ### 用户审核
 
-#### `POST /user/pending/list?offset=0&limit=50`
+#### `GET /user/pending/list`
 
 列出待审核用户。
+
+| 参数 | 位置 | 类型 | 说明 |
+|------|------|------|------|
+| `offset` | query | int | 偏移量（默认 0） |
+| `limit` | query | int | 条数（默认 50） |
 
 #### `POST /user/pending/approve/{user_id}`
 
@@ -631,7 +665,7 @@ CIMS 提供四个独立端口的 API 服务：
 
 #### `GET /account`
 
-列出所有账户（跨租户）。
+列出所有账户（跨租户）。复用 Management API 的 `/account` 接口，但具备所有权限。允许 `?role={user_id}` 以某个用户身份操作。
 
 **响应** — `AccountOut[]`
 
@@ -647,11 +681,9 @@ CIMS 提供四个独立端口的 API 服务：
 
 修改系统设置。
 
-**请求体** — 键值对 JSON。
+> 仅允许以下 key：`registration_open`, `require_approval`, `max_accounts_per_user`, `default_role`, `motd`。
 
-```json
-{"key1": "value1", "key2": "value2"}
-```
+**请求体** — 键值对 JSON。
 
 ### 批量操作
 

@@ -17,10 +17,15 @@ from .account_pairing_action import router as pair_act_r
 from .account_pre_reg_crud import router as prereg_r
 from .account_pre_reg_detail import router as prereg_d_r
 from .account_pre_reg_preset import router as prereg_p_r
+from .account_pre_reg_create import router as prereg_c_r
 from .account_access import router as access_r
+from .account_access_search import router as access_s_r
+from .account_access_update import router as access_u_r
+from .account_access_delete import router as access_d_r
 from .account_invitation import router as inv_r
+from .account_invitation_create import router as inv_c_r
+from .account_invitation_revoke import router as inv_v_r
 from .bulk import router as bulk_r
-from app.api.command.router import router as cmd_r
 
 router = APIRouter()
 
@@ -33,8 +38,8 @@ router.include_router(apply_r, prefix="/account", tags=["Account"])
 router.include_router(detail_r, prefix="/account", tags=["Account"])
 router.include_router(info_r, prefix="/account", tags=["Account"])
 
-# 资源和客户端（需账户上下文）
-_acct = "/accounts/{account_id}"
+# 资源（需账户上下文）
+_acct = "/account/{account_id}"
 router.include_router(res_r, prefix=f"{_acct}", tags=["Resource"])
 router.include_router(cli_r, prefix=f"{_acct}/client", tags=["Client"])
 
@@ -47,15 +52,20 @@ _pre = f"{_acct}/pre-registration"
 router.include_router(prereg_r, prefix=_pre, tags=["PreReg"])
 router.include_router(prereg_d_r, prefix=_pre, tags=["PreReg"])
 router.include_router(prereg_p_r, prefix=_pre, tags=["PreReg"])
+router.include_router(prereg_c_r, prefix=_pre, tags=["PreReg"])
 
-# 访问控制和邀请
-router.include_router(access_r, prefix=f"{_acct}/access", tags=["Access"])
-router.include_router(inv_r, prefix=f"{_acct}/invitation", tags=["Invite"])
+# 访问控制
+_acc = f"{_acct}/access"
+router.include_router(access_r, prefix=_acc, tags=["Access"])
+router.include_router(access_s_r, prefix=_acc, tags=["Access"])
+router.include_router(access_u_r, prefix=_acc, tags=["Access"])
+router.include_router(access_d_r, prefix=_acc, tags=["Access"])
+
+# 邀请
+_inv = f"{_acct}/invitation"
+router.include_router(inv_r, prefix=_inv, tags=["Invite"])
+router.include_router(inv_c_r, prefix=_inv, tags=["Invite"])
+router.include_router(inv_v_r, prefix=_inv, tags=["Invite"])
 
 # 批量操作
 router.include_router(bulk_r, prefix="/account/bulk", tags=["Bulk"])
-
-# 指令/数据操作
-router.include_router(
-    cmd_r, prefix=f"{_acct}/command", tags=["Command"]
-)

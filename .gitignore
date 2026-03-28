@@ -182,6 +182,7 @@ settings.json
 # Protocol Buffer
 *_pb2.py
 *_pb2_grpc.py
+*_pb2.pyi
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
