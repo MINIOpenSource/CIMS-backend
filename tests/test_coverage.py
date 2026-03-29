@@ -40,17 +40,19 @@ _CMD_PREFIX = f"/accounts/{TEST_ACCOUNT_ID}/command"
 @pytest.mark.asyncio
 async def test_command_edge_cases(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         h = command_headers
         # Invalid resource type for Create
-        res = await ac.get(f"{_CMD_PREFIX}/datas/InvalidRes/create?name=test", headers=h)
+        res = await ac.get(
+            f"{_CMD_PREFIX}/datas/InvalidRes/create?name=test", headers=h
+        )
         assert res.status_code == 200
         assert res.json()["status"] == "error"
 
         # Create already existing
-        await ac.get(f"{_CMD_PREFIX}/datas/TimeLayout/create?name=duplicate_tl", headers=h)
+        await ac.get(
+            f"{_CMD_PREFIX}/datas/TimeLayout/create?name=duplicate_tl", headers=h
+        )
         res = await ac.get(
             f"{_CMD_PREFIX}/datas/TimeLayout/create?name=duplicate_tl", headers=h
         )
@@ -62,7 +64,9 @@ async def test_command_edge_cases(command_headers):
         assert res.status_code == 400
 
         # Invalid resource type for Delete
-        res = await ac.delete(f"{_CMD_PREFIX}/datas/InvalidRes/delete?name=test", headers=h)
+        res = await ac.delete(
+            f"{_CMD_PREFIX}/datas/InvalidRes/delete?name=test", headers=h
+        )
         assert res.status_code == 200
         assert res.json()["status"] == "error"
 
@@ -89,7 +93,9 @@ async def test_command_edge_cases(command_headers):
 
         # Update non-existing
         res = await ac.patch(
-            f"{_CMD_PREFIX}/datas/TimeLayout/update?name=not_found_tl", json={}, headers=h
+            f"{_CMD_PREFIX}/datas/TimeLayout/update?name=not_found_tl",
+            json={},
+            headers=h,
         )
         assert res.status_code == 200
         assert res.json()["status"] == "error"
@@ -177,7 +183,9 @@ async def test_command_edge_cases(command_headers):
         assert all(r["status"] == "success" for r in res.json()["results"])
 
         # Granular write creates new
-        await ac.get(f"{_CMD_PREFIX}/datas/ClassPlan/create?name=gran_cp_{uid}", headers=h)
+        await ac.get(
+            f"{_CMD_PREFIX}/datas/ClassPlan/create?name=gran_cp_{uid}", headers=h
+        )
         await ac.put(
             f"{_CMD_PREFIX}/datas/ClassPlan/write?name=gran_cp_{uid}",
             json={"test": {"old": 1}},
@@ -251,14 +259,18 @@ async def test_command_edge_cases(command_headers):
                 },
             ]
         }
-        res = await ac.post(f"{_CMD_PREFIX}/datas/batch", json=edge_case_batch, headers=h)
+        res = await ac.post(
+            f"{_CMD_PREFIX}/datas/batch", json=edge_case_batch, headers=h
+        )
         assert res.status_code == 200
 
         # Batch exception rollback
         from unittest.mock import patch
 
         mock_name = f"mocked_merge_{uid}"
-        await ac.get(f"{_CMD_PREFIX}/datas/TimeLayout/create?name={mock_name}", headers=h)
+        await ac.get(
+            f"{_CMD_PREFIX}/datas/TimeLayout/create?name={mock_name}", headers=h
+        )
 
         with patch(
             "app.api.command.dict_deep_merge",
@@ -274,7 +286,9 @@ async def test_command_edge_cases(command_headers):
                     }
                 ]
             }
-            res = await ac.post(f"{_CMD_PREFIX}/datas/batch", json=error_batch, headers=h)
+            res = await ac.post(
+                f"{_CMD_PREFIX}/datas/batch", json=error_batch, headers=h
+            )
             assert res.status_code == 200
             assert "内部错误" in res.json()["message"]
 
@@ -306,14 +320,10 @@ async def test_client_details_endpoint(command_headers):
     import uuid
 
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         h = command_headers
         # Client not found
-        res = await ac.get(
-            f"{_CMD_PREFIX}/client/{uuid.uuid4()}/details", headers=h
-        )
+        res = await ac.get(f"{_CMD_PREFIX}/client/{uuid.uuid4()}/details", headers=h)
         assert res.status_code == 404
 
         # Create a client and fetch details
@@ -342,12 +352,8 @@ async def test_client_details_endpoint(command_headers):
 @pytest.mark.asyncio
 async def test_client_status_with_session_manager(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
-        res = await ac.get(
-            f"{_CMD_PREFIX}/clients/status", headers=command_headers
-        )
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        res = await ac.get(f"{_CMD_PREFIX}/clients/status", headers=command_headers)
         assert res.status_code == 200
         assert isinstance(res.json(), list)
 
@@ -355,9 +361,7 @@ async def test_client_status_with_session_manager(command_headers):
 @pytest.mark.asyncio
 async def test_update_data_command(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         res = await ac.get(
             f"{_CMD_PREFIX}/client/test-uid/update_data", headers=command_headers
         )
@@ -367,9 +371,7 @@ async def test_update_data_command(command_headers):
 @pytest.mark.asyncio
 async def test_send_notification_command(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         payload = {
             "MessageMask": "Test",
             "MessageContent": "Hello",
@@ -387,9 +389,7 @@ async def test_send_notification_command(command_headers):
 @pytest.mark.asyncio
 async def test_get_config_command(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         res = await ac.get(
             f"{_CMD_PREFIX}/client/test-uid/get_config?config_type=1",
             headers=command_headers,
@@ -400,9 +400,7 @@ async def test_get_config_command(command_headers):
 @pytest.mark.asyncio
 async def test_command_endpoints_without_servicer(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         h = command_headers
         orig_cmd = getattr(management_app.state, "command_servicer", None)
         orig_sm = getattr(management_app.state, "session_manager", None)

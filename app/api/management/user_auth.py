@@ -20,9 +20,7 @@ async def user_login(
 ):
     """用户登录，返回令牌或进入 2FA 流程。"""
     try:
-        token, user, needs_2fa = await login_user(
-            payload.email, payload.password, db
-        )
+        token, user, needs_2fa = await login_user(payload.email, payload.password, db)
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc))
     if needs_2fa:

@@ -4,7 +4,6 @@
 """
 
 import logging
-from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,12 +39,20 @@ _DEFAULT_PERMISSIONS = [
 # 角色-权限映射
 _ROLE_PERMS = {
     "admin": [
-        "client.read", "client.manage", "command.execute",
-        "config.edit", "user.manage", "audit.read", "pairing.manage",
-        "pre_reg.manage", "account.slug.edit",
+        "client.read",
+        "client.manage",
+        "command.execute",
+        "config.edit",
+        "user.manage",
+        "audit.read",
+        "pairing.manage",
+        "pre_reg.manage",
+        "account.slug.edit",
     ],
     "teacher": [
-        "client.read", "command.execute", "config.edit",
+        "client.read",
+        "command.execute",
+        "config.edit",
     ],
     "viewer": [
         "client.read",
@@ -58,28 +65,32 @@ async def seed_rbac(db: AsyncSession) -> None:
     # 种子角色
     for code, label, priority, is_sys in _DEFAULT_ROLES:
         exists = (
-            await db.execute(
-                select(CustomRole).where(CustomRole.code == code)
-            )
+            await db.execute(select(CustomRole).where(CustomRole.code == code))
         ).scalar_one_or_none()
         if not exists:
-            db.add(CustomRole(
-                code=code, label=label,
-                priority=priority, is_system=is_sys,
-            ))
+            db.add(
+                CustomRole(
+                    code=code,
+                    label=label,
+                    priority=priority,
+                    is_system=is_sys,
+                )
+            )
             logger.info("创建默认角色: %s", code)
 
     # 种子权限
     for code, label, category in _DEFAULT_PERMISSIONS:
         exists = (
-            await db.execute(
-                select(PermissionDef).where(PermissionDef.code == code)
-            )
+            await db.execute(select(PermissionDef).where(PermissionDef.code == code))
         ).scalar_one_or_none()
         if not exists:
-            db.add(PermissionDef(
-                code=code, label=label, category=category,
-            ))
+            db.add(
+                PermissionDef(
+                    code=code,
+                    label=label,
+                    category=category,
+                )
+            )
             logger.info("创建默认权限: %s", code)
 
     # 种子角色-权限关联
@@ -93,10 +104,12 @@ async def seed_rbac(db: AsyncSession) -> None:
                 )
             ).scalar_one_or_none()
             if not exists:
-                db.add(RolePermission(
-                    role_code=role_code,
-                    permission_code=perm_code,
-                ))
+                db.add(
+                    RolePermission(
+                        role_code=role_code,
+                        permission_code=perm_code,
+                    )
+                )
 
     await db.commit()
     logger.info("RBAC 种子数据初始化完成")

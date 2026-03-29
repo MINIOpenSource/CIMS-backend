@@ -12,7 +12,6 @@
 """
 
 import logging
-import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -26,9 +25,7 @@ from starlette.responses import Response
 
 # ---- 常量 ----
 _LOG_DIR = Path(".cims") / "logs"
-_LOG_FORMAT = (
-    "%(asctime)s.%(msecs)03d | %(levelname)-5s | %(port_tag)-7s | %(name)-30s | %(message)s"
-)
+_LOG_FORMAT = "%(asctime)s.%(msecs)03d | %(levelname)-5s | %(port_tag)-7s | %(name)-30s | %(message)s"
 _LOG_DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 # 端口标签映射
@@ -70,17 +67,17 @@ class _ColorFormatter(logging.Formatter):
     """
 
     _COLORS = {
-        PORT_TAG_CLIENT: "\033[36m",   # 青色
-        PORT_TAG_MGMT: "\033[33m",     # 黄色
-        PORT_TAG_ADMIN: "\033[35m",    # 品红色
-        PORT_TAG_GRPC: "\033[32m",     # 绿色
-        PORT_TAG_SYSTEM: "\033[37m",   # 白色
+        PORT_TAG_CLIENT: "\033[36m",  # 青色
+        PORT_TAG_MGMT: "\033[33m",  # 黄色
+        PORT_TAG_ADMIN: "\033[35m",  # 品红色
+        PORT_TAG_GRPC: "\033[32m",  # 绿色
+        PORT_TAG_SYSTEM: "\033[37m",  # 白色
     }
     _LEVEL_COLORS = {
-        "DEBUG": "\033[90m",     # 灰色
-        "INFO": "\033[97m",      # 亮白
-        "WARNING": "\033[93m",   # 亮黄
-        "ERROR": "\033[91m",     # 亮红
+        "DEBUG": "\033[90m",  # 灰色
+        "INFO": "\033[97m",  # 亮白
+        "WARNING": "\033[93m",  # 亮黄
+        "ERROR": "\033[91m",  # 亮红
         "CRITICAL": "\033[41m",  # 红底
     }
     _RESET = "\033[0m"
@@ -207,9 +204,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         self.port_tag = port_tag
         self.logger = get_port_logger(port_tag)
 
-    async def dispatch(
-        self, request: Request, call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """拦截请求，记录详细日志。"""
         start = time.perf_counter()
         client_ip = request.client.host if request.client else "unknown"

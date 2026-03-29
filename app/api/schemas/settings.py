@@ -18,9 +18,7 @@ ALLOWED_KEYS = {
 class SettingsUpdate(BaseModel):
     """系统设置修改请求体。"""
 
-    items: dict[str, str] = Field(
-        ..., description="键值对，键必须在白名单内"
-    )
+    items: dict[str, str] = Field(..., description="键值对，键必须在白名单内")
 
     @field_validator("items")
     @classmethod

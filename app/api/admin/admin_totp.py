@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.auth.dependencies import require_role
 from app.models.session import get_db
 from app.models.user import User
-from app.services.crypto.totp import generate_totp_secret, verify_totp
+from app.services.crypto.totp import generate_totp_secret
 
 router = APIRouter()
 _sa = require_role(100)

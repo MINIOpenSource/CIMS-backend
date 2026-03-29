@@ -34,9 +34,7 @@ management_app.add_middleware(
 )
 
 # 账户上下文中间件（校验 AccountMember 成员资格）
-management_app.add_middleware(
-    AccountContextMiddleware, require_membership=True
-)
+management_app.add_middleware(AccountContextMiddleware, require_membership=True)
 
 # 会话令牌认证中间件
 management_app.add_middleware(AdminAuthMiddleware)
@@ -51,9 +49,7 @@ management_app.include_router(acct_router)
 async def _global_exc(request: Request, exc: Exception):
     """全局异常拦截，避免泄露内部信息。"""
     logger.exception("未处理异常: %s %s", request.url.path, exc)
-    return JSONResponse(
-        status_code=500, content={"detail": "服务器内部错误"}
-    )
+    return JSONResponse(status_code=500, content={"detail": "服务器内部错误"})
 
 
 @management_app.get("/")

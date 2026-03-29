@@ -224,7 +224,6 @@ def _print_manual_install(local_path, systemd_path) -> None:
         local_path: 本地服务文件路径。
         systemd_path: 目标 systemd 路径。
     """
-    print(f"⚠️  无法自动安装服务文件，请手动执行:")
+    print("⚠️  无法自动安装服务文件，请手动执行:")
     print(f"   sudo cp {local_path} {systemd_path}")
-    print(f"   sudo systemctl daemon-reload")
-
+    print("   sudo systemctl daemon-reload")

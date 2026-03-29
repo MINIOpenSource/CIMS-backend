@@ -24,28 +24,28 @@ async def delete_account(
 ):
     """停用账户（需 owner 权限，级联清理关联数据）。"""
     # 权限校验：仅 owner 可操作
-    member = (await db.execute(
-        select(AccountMember).where(
-            AccountMember.account_id == account_id,
-            AccountMember.user_id == uid,
+    member = (
+        await db.execute(
+            select(AccountMember).where(
+                AccountMember.account_id == account_id,
+                AccountMember.user_id == uid,
+            )
         )
-    )).scalar_one_or_none()
+    ).scalar_one_or_none()
     if not member or member.role_in_account != "owner":
         raise HTTPException(403, "仅账户所有者可执行此操作")
-    acct = (await db.execute(
-        select(Account).where(Account.id == account_id)
-    )).scalar_one_or_none()
+    acct = (
+        await db.execute(select(Account).where(Account.id == account_id))
+    ).scalar_one_or_none()
     if not acct:
         raise HTTPException(404, "账户不存在")
     # 软删除 + 级联清理
     acct.is_active = False
     await db.execute(
-        delete(AccountMember).where(
-            AccountMember.account_id == account_id)
+        delete(AccountMember).where(AccountMember.account_id == account_id)
     )
     await db.execute(
-        delete(PreRegisteredClient).where(
-            PreRegisteredClient.account_id == account_id)
+        delete(PreRegisteredClient).where(PreRegisteredClient.account_id == account_id)
     )
     await db.commit()
     return {"message": "账户已停用，关联数据已清理"}

@@ -64,9 +64,7 @@ async def test_get_client_manifest():
 @pytest.mark.asyncio
 async def test_command_endpoints(command_headers):
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Create a ClassPlan
         create_res = await ac.get(
             f"{_RES_PREFIX}/ClassPlan/create?name=test_cp",
@@ -161,9 +159,7 @@ async def test_command_endpoints(command_headers):
         )
         assert "test_batch_layout" in list_tl.json()
 
-        list_cp = await ac.get(
-            f"{_RES_PREFIX}/ClassPlan/list", headers=command_headers
-        )
+        list_cp = await ac.get(f"{_RES_PREFIX}/ClassPlan/list", headers=command_headers)
         assert "test_cp2" not in list_cp.json()
 
 
@@ -225,9 +221,7 @@ async def test_get_client_resource():
     cmd_headers = {"Authorization": f"Bearer {cmd_token}"}
 
     mgr_transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=mgr_transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=mgr_transport, base_url="http://test") as ac:
         # Create and write
         await ac.get(
             f"{_RES_PREFIX}/ClassPlan/create?name=valid_cp_{test_uid}",
@@ -297,9 +291,7 @@ async def test_get_endpoint_corrupted_resource():
     cmd_headers = {"Authorization": f"Bearer {cmd_token}"}
 
     mgr_transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=mgr_transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=mgr_transport, base_url="http://test") as ac:
         token_res = await ac.get(
             f"{_RES_PREFIX}/ClassPlan/token?name=corrupted_cp_{test_uid}",
             headers=cmd_headers,
@@ -327,9 +319,7 @@ async def test_command_token_endpoint():
     cmd_headers = {"Authorization": f"Bearer {cmd_token}"}
 
     mgr_transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=mgr_transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=mgr_transport, base_url="http://test") as ac:
         # Invalid resource type
         res = await ac.get(
             f"{_RES_PREFIX}/InvalidRes/token?name=test",
@@ -392,9 +382,7 @@ async def test_get_ip_auth_pass():
     cmd_headers = {"Authorization": f"Bearer {cmd_token}"}
 
     mgr_transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=mgr_transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=mgr_transport, base_url="http://test") as ac:
         await ac.get(
             f"{_RES_PREFIX}/ClassPlan/create?name=ip_pass_{test_uid}",
             headers=cmd_headers,
@@ -433,9 +421,7 @@ async def test_get_ip_auth_fail():
     cmd_headers = {"Authorization": f"Bearer {cmd_token}"}
 
     mgr_transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=mgr_transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=mgr_transport, base_url="http://test") as ac:
         await ac.get(
             f"{_RES_PREFIX}/ClassPlan/create?name=ip_fail_{test_uid}",
             headers=cmd_headers,
@@ -490,9 +476,7 @@ async def test_parse_grpc_peer_ip():
 async def test_command_without_token():
     """命令端点拒绝未携带 Bearer Token 的请求。"""
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         res = await ac.get(f"{_RES_PREFIX}/ClassPlan/list")
         assert res.status_code == 401
 
@@ -501,9 +485,7 @@ async def test_command_without_token():
 async def test_command_with_invalid_token():
     """命令端点拒绝携带无效令牌的请求。"""
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         res = await ac.get(
             f"{_RES_PREFIX}/ClassPlan/list",
             headers={"Authorization": "Bearer invalid_token_here"},
@@ -515,9 +497,7 @@ async def test_command_with_invalid_token():
 async def test_admin_login_and_use(test_superadmin_user):
     """测试完整的管理端登录流程：登录 → 使用令牌 → 登出。"""
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # 使用邮箱/密码登录
         login_res = await ac.post(
             "/user/auth",
@@ -536,9 +516,7 @@ async def test_admin_login_and_use(test_superadmin_user):
 async def test_admin_login_bad_password(test_superadmin_user):
     """管理端登录拒绝错误密码。"""
     transport = ASGITransport(app=management_app)
-    async with AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         res = await ac.post(
             "/user/auth",
             json={"email": "admin@test.com", "password": "WrongPass!"},

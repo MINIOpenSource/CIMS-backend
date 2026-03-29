@@ -15,7 +15,7 @@ from app.core.config import (
     ADMIN_PORT,
     GRPC_PORT,
 )
-from app.core.redis.pool import init_redis, close_redis
+from app.core.redis.pool import init_redis
 from app.models.database import init_db
 from app.grpc.server.bootstrap import serve_grpc
 from app.core.logging import get_port_logger, PORT_TAG_GRPC
@@ -47,5 +47,8 @@ async def _startup(app: FastAPI):
     app.state.session_manager = sess_m
     logger.info(
         "就绪 — C:%d M:%d A:%d G:%d",
-        CLIENT_PORT, MANAGEMENT_PORT, ADMIN_PORT, GRPC_PORT,
+        CLIENT_PORT,
+        MANAGEMENT_PORT,
+        ADMIN_PORT,
+        GRPC_PORT,
     )

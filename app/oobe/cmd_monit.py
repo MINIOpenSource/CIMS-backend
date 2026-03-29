@@ -3,7 +3,6 @@
 滚动查看 cims-backend 服务日志。
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -71,11 +70,14 @@ def _try_journalctl() -> bool:
         subprocess.run(
             [
                 "journalctl",
-                "-u", "cims-backend",
+                "-u",
+                "cims-backend",
                 "-f",
                 "--no-pager",
-                "-n", "100",
-                "-o", "cat",
+                "-n",
+                "100",
+                "-o",
+                "cat",
             ],
             check=False,
         )

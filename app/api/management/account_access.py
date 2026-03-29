@@ -18,7 +18,8 @@ router = APIRouter()
 def _member_out(m: AccountMember) -> AccessMemberOut:
     """模型转响应。"""
     return AccessMemberOut(
-        id=m.id, user_id=m.user_id,
+        id=m.id,
+        user_id=m.user_id,
         account_id=m.account_id,
         role_in_account=m.role_in_account,
         joined_at=str(m.joined_at),
@@ -33,12 +34,14 @@ async def list_access(
 ):
     """列出账户下的具权用户。"""
     rows = (
-        await db.execute(
-            select(AccountMember).where(
-                AccountMember.account_id == account_id
+        (
+            await db.execute(
+                select(AccountMember).where(AccountMember.account_id == account_id)
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [_member_out(m) for m in rows]
 
 
@@ -57,6 +60,7 @@ async def get_access_detail(
 ):
     """获取具权用户信息。"""
     from sqlalchemy import and_
+
     m = (
         await db.execute(
             select(AccountMember).where(
@@ -69,5 +73,6 @@ async def get_access_detail(
     ).scalar_one_or_none()
     if not m:
         from fastapi import HTTPException
+
         raise HTTPException(404, "成员不存在")
     return _member_out(m)

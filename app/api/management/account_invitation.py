@@ -18,12 +18,16 @@ router = APIRouter()
 def _out(inv: Invitation) -> InvitationOut:
     """模型转响应。"""
     return InvitationOut(
-        id=inv.id, account_id=inv.account_id,
-        inviter_user_id=inv.inviter_user_id, code=inv.code,
+        id=inv.id,
+        account_id=inv.account_id,
+        inviter_user_id=inv.inviter_user_id,
+        code=inv.code,
         role_in_account=inv.role_in_account,
-        max_uses=inv.max_uses, used_count=inv.used_count,
+        max_uses=inv.max_uses,
+        used_count=inv.used_count,
         expires_at=str(inv.expires_at) if inv.expires_at else None,
-        is_active=inv.is_active, created_at=str(inv.created_at),
+        is_active=inv.is_active,
+        created_at=str(inv.created_at),
     )
 
 
@@ -35,12 +39,14 @@ async def list_invitations(
 ):
     """列出账户下的邀请。"""
     rows = (
-        await db.execute(
-            select(Invitation).where(
-                Invitation.account_id == account_id
+        (
+            await db.execute(
+                select(Invitation).where(Invitation.account_id == account_id)
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [_out(inv) for inv in rows]
 
 
@@ -53,18 +59,17 @@ async def search_invitations(
 ):
     """搜索邀请。"""
     rows = (
-        await db.execute(
-            select(Invitation).where(
-                Invitation.account_id == account_id
+        (
+            await db.execute(
+                select(Invitation).where(Invitation.account_id == account_id)
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not q:
         return [_out(inv) for inv in rows]
-    return [
-        _out(inv) for inv in rows
-        if q.lower() in (inv.code or "").lower()
-    ]
+    return [_out(inv) for inv in rows if q.lower() in (inv.code or "").lower()]
 
 
 @router.post("/{invitation_id}/rename")
@@ -91,5 +96,6 @@ async def get_invitation(
     ).scalar_one_or_none()
     if not inv:
         from fastapi import HTTPException
+
         raise HTTPException(404, "邀请不存在")
     return _out(inv)

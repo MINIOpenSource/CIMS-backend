@@ -31,8 +31,10 @@ async def create_pre_reg(
     if dup.scalar_one_or_none():
         raise HTTPException(400, "该 class_identity 已存在")
     p = PreRegisteredClient(
-        id=str(uuid.uuid4()), account_id=account_id,
-        label=body.label, class_identity=body.class_identity,
+        id=str(uuid.uuid4()),
+        account_id=account_id,
+        label=body.label,
+        class_identity=body.class_identity,
         created_at=datetime.now(timezone.utc),
     )
     db.add(p)

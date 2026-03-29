@@ -15,6 +15,7 @@ _sa = require_role(100)
 
 class RenameRequest(BaseModel):
     """重命名请求体。"""
+
     name: str = Field(..., min_length=1, max_length=64)
 
 
@@ -51,4 +52,3 @@ async def rename_user(
     user.username = body.name
     await db.commit()
     return {"message": "已重命名"}
-

@@ -20,6 +20,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # ---- pydantic-settings 配置类 ----
 
+
 class CIMSSettings(BaseSettings):
     """CIMS 全局配置，自动从环境变量与 .env 文件加载。"""
 
@@ -101,6 +102,4 @@ def validate_config() -> None:
             "必须通过 .cims/config.json、.env 或 DATABASE_URL 环境变量提供数据库连接"
         )
     if not REDIS_URL:
-        raise RuntimeError(
-            "必须通过 .env 或 REDIS_URL 环境变量提供 Redis 连接"
-        )
+        raise RuntimeError("必须通过 .env 或 REDIS_URL 环境变量提供 Redis 连接")

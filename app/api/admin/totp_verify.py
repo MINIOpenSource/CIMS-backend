@@ -18,9 +18,7 @@ async def verify_2fa_login(body: TotpVerifyRequest):
     from app.models.engine import AsyncSessionLocal
 
     async with AsyncSessionLocal() as db:
-        user = (
-            await db.execute(select(User).where(User.id == uid))
-        ).scalar_one()
+        user = (await db.execute(select(User).where(User.id == uid))).scalar_one()
     if not verify_totp(user.totp_secret, body.code):
         raise HTTPException(401, "TOTP 码无效")
     token = await create_session_token(uid)

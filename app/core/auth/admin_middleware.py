@@ -7,8 +7,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
 from fastapi import Request, Response
 from starlette.middleware.base import (
     BaseHTTPMiddleware,
@@ -19,6 +17,8 @@ from starlette.responses import JSONResponse
 from app.core.config import REDIS_DB_AUTH
 from app.core.redis.accessor import get_redis
 from app.core.tenant.context import get_tenant_id
+
+logger = logging.getLogger(__name__)
 
 # 免认证路径白名单
 _EXEMPT = {"/", "/user/auth", "/user/apply"}
@@ -59,9 +59,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
             if ok:
                 return await call_next(request)
         client_ip = request.client.host if request.client else "unknown"
-        logger.warning(
-            "认证失败：ip=%s path=%s", client_ip, path
-        )
+        logger.warning("认证失败：ip=%s path=%s", client_ip, path)
         return _DENY
 
 

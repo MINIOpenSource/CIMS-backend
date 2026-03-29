@@ -26,9 +26,7 @@ async def update_account_slug(
     if not _SLUG_RE.match(new_slug):
         raise ValueError("Slug 格式不合法（3~64位小写字母数字连字符）")
     dup = await db.execute(
-        select(Account).where(
-            Account.slug == new_slug, Account.id != account_id
-        )
+        select(Account).where(Account.slug == new_slug, Account.id != account_id)
     )
     if dup.scalar_one_or_none():
         raise ValueError("该 Slug 已被占用")
@@ -41,9 +39,7 @@ async def update_account_slug(
     m = member.scalar_one_or_none()
     if not m or m.role_in_account not in ("owner", "admin"):
         raise PermissionError("需要账户 owner 或 admin 角色")
-    acct = await db.execute(
-        select(Account).where(Account.id == account_id)
-    )
+    acct = await db.execute(select(Account).where(Account.id == account_id))
     account = acct.scalar_one_or_none()
     if not account:
         return None

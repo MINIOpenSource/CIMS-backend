@@ -5,8 +5,6 @@ systemd 服务文件生成以及 daemon 生命周期命令分发。
 """
 
 import logging
-import subprocess
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from app.oobe.validator import (
@@ -112,16 +110,23 @@ class TestLogging:
         log_dir = tmp_path / "logs"
         monkeypatch.setattr("app.core.logging._LOG_DIR", log_dir)
         from app.core.logging import setup_logging
+
         setup_logging()
         assert log_dir.exists()
 
     def test_port_tag_filter(self):
         """端口标签过滤器应注入 port_tag 属性。"""
         from app.core.logging import _PortTagFilter
+
         f = _PortTagFilter("CLIENT")
         record = logging.LogRecord(
-            name="test", level=logging.INFO, pathname="",
-            lineno=0, msg="test", args=(), exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="test",
+            args=(),
+            exc_info=None,
         )
         assert f.filter(record) is True
         assert record.port_tag == "CLIENT"  # type: ignore[attr-defined]
@@ -129,6 +134,7 @@ class TestLogging:
     def test_get_port_logger(self):
         """get_port_logger 应返回带端口标签的 logger。"""
         from app.core.logging import get_port_logger, _PortTagFilter
+
         logger = get_port_logger("ADMIN")
         assert logger.name == "cims.admin"
         assert any(isinstance(f, _PortTagFilter) for f in logger.filters)
@@ -136,10 +142,16 @@ class TestLogging:
     def test_color_formatter(self):
         """彩色格式化器应正常输出包含 ANSI 转义序列的文本。"""
         from app.core.logging import _ColorFormatter, _LOG_FORMAT, _LOG_DATE_FMT
+
         fmt = _ColorFormatter(_LOG_FORMAT, datefmt=_LOG_DATE_FMT)
         record = logging.LogRecord(
-            name="test", level=logging.INFO, pathname="",
-            lineno=0, msg="hello", args=(), exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="hello",
+            args=(),
+            exc_info=None,
         )
         record.port_tag = "CLIENT"  # type: ignore[attr-defined]
         result = fmt.format(record)
@@ -154,6 +166,7 @@ class TestDaemonCommands:
     def test_dispatch_daemon(self):
         """daemon 命令应路由到 handle_daemon。"""
         from app.oobe.commands import dispatch
+
         args = MagicMock()
         args.command = "daemon"
         with patch("app.oobe.cmd_daemon.handle_daemon") as mock:
@@ -163,6 +176,7 @@ class TestDaemonCommands:
     def test_dispatch_start(self):
         """start 命令应路由到 handle_start。"""
         from app.oobe.commands import dispatch
+
         args = MagicMock()
         args.command = "start"
         with patch("app.oobe.cmd_start.handle_start") as mock:
@@ -172,6 +186,7 @@ class TestDaemonCommands:
     def test_dispatch_stop(self):
         """stop 命令应路由到 handle_stop。"""
         from app.oobe.commands import dispatch
+
         args = MagicMock()
         args.command = "stop"
         with patch("app.oobe.cmd_stop.handle_stop") as mock:
@@ -181,6 +196,7 @@ class TestDaemonCommands:
     def test_dispatch_startup(self):
         """startup 命令应路由到 handle_startup。"""
         from app.oobe.commands import dispatch
+
         args = MagicMock()
         args.command = "startup"
         with patch("app.oobe.cmd_startup.handle_startup") as mock:
@@ -190,6 +206,7 @@ class TestDaemonCommands:
     def test_dispatch_monit(self):
         """monit 命令应路由到 handle_monit。"""
         from app.oobe.commands import dispatch
+
         args = MagicMock()
         args.command = "monit"
         with patch("app.oobe.cmd_monit.handle_monit") as mock:
@@ -199,9 +216,11 @@ class TestDaemonCommands:
     def test_dispatch_unknown(self):
         """未知命令应 sys.exit(1)。"""
         from app.oobe.commands import dispatch
+
         args = MagicMock()
         args.command = "nonexistent"
         import sys
+
         with patch.object(sys, "exit") as mock_exit:
             dispatch(args)
             mock_exit.assert_called_with(1)
@@ -223,6 +242,7 @@ class TestSystemdGeneration:
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(returncode=1, stderr="权限不足")
                 from app.oobe.initializer import generate_systemd_service
+
                 generate_systemd_service()
 
         service_file = config_dir / "cims-backend.service"
@@ -252,6 +272,7 @@ class TestSystemdGeneration:
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(returncode=1, stderr="权限不足")
                 from app.oobe.initializer import generate_systemd_service
+
                 generate_systemd_service()
 
         content = (config_dir / "cims-backend.service").read_text()
@@ -266,8 +287,10 @@ class TestPidFile:
         pid_file = tmp_path / "cims.pid"
         monkeypatch.setattr("app.main._PID_FILE", pid_file)
         from app.main import _write_pid, read_pid
+
         _write_pid()
         import os
+
         assert read_pid() == os.getpid()
 
     def test_remove_pid(self, tmp_path, monkeypatch):
@@ -276,6 +299,7 @@ class TestPidFile:
         pid_file.write_text("12345")
         monkeypatch.setattr("app.main._PID_FILE", pid_file)
         from app.main import _remove_pid
+
         _remove_pid()
         assert not pid_file.exists()
 
@@ -283,6 +307,7 @@ class TestPidFile:
         """PID 文件不存在时应返回 None。"""
         monkeypatch.setattr("app.main._PID_FILE", tmp_path / "nope.pid")
         from app.main import read_pid
+
         assert read_pid() is None
 
 
@@ -292,6 +317,7 @@ class TestCliParser:
     def test_parser_has_daemon_commands(self):
         """解析器应包含 daemon/start/stop/startup/monit 子命令。"""
         from app.oobe.cli_parser import build_parser
+
         parser = build_parser()
         # 验证能解析新增的子命令
         for cmd in ["daemon", "start", "stop", "startup", "monit"]:
@@ -302,6 +328,7 @@ class TestCliParser:
         """解析器不应包含旧的 serve 子命令。"""
         import pytest
         from app.oobe.cli_parser import build_parser
+
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["serve"])

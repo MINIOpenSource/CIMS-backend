@@ -37,9 +37,7 @@ async def update_user_info(
     _user=Depends(_sa),
 ):
     """修改用户信息。"""
-    updated = await update_user(
-        user_id, db, **body.model_dump(exclude_none=True)
-    )
+    updated = await update_user(user_id, db, **body.model_dump(exclude_none=True))
     if not updated:
         raise HTTPException(status_code=404, detail="用户不存在")
     return _to_out(updated)

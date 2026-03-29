@@ -4,7 +4,6 @@
 """
 
 import logging
-from typing import Sequence
 
 from fastapi import Request, HTTPException
 from sqlalchemy import select
@@ -18,9 +17,7 @@ from app.core.tenant.context import get_tenant_id, set_search_path
 logger = logging.getLogger(__name__)
 
 
-async def _get_member_permissions(
-    user_id: str, account_id: str
-) -> set[str]:
+async def _get_member_permissions(user_id: str, account_id: str) -> set[str]:
     """汇总用户在指定账户内的有效权限集合。"""
     async with AsyncSessionLocal() as db:
         await set_search_path(db)
@@ -42,9 +39,7 @@ async def _get_member_permissions(
         role_perms_stmt = select(RolePermission.permission_code).where(
             RolePermission.role_code == member.role_in_account
         )
-        role_perms = set(
-            (await db.execute(role_perms_stmt)).scalars().all()
-        )
+        role_perms = set((await db.execute(role_perms_stmt)).scalars().all())
 
         # 成员级覆盖
         member_overrides_stmt = select(MemberPermission).where(
@@ -77,12 +72,8 @@ def require_permission(*perms: str):
             return user_id
         for p in perms:
             if p not in granted:
-                logger.warning(
-                    "权限不足: user=%s perm=%s", user_id, p
-                )
-                raise HTTPException(
-                    status_code=403, detail=f"缺少权限: {p}"
-                )
+                logger.warning("权限不足: user=%s perm=%s", user_id, p)
+                raise HTTPException(status_code=403, detail=f"缺少权限: {p}")
         return user_id
 
     return _checker

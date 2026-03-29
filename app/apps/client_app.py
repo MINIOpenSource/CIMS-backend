@@ -42,9 +42,7 @@ client_app.include_router(token_get_router, tags=["TokenGet"])
 async def _global_exc(request: Request, exc: Exception):
     """全局异常拦截，避免泄露内部信息。"""
     logger.exception("未处理异常: %s %s", request.url.path, exc)
-    return JSONResponse(
-        status_code=500, content={"detail": "服务器内部错误"}
-    )
+    return JSONResponse(status_code=500, content={"detail": "服务器内部错误"})
 
 
 @client_app.get("/")

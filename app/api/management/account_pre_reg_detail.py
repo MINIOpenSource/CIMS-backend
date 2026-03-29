@@ -4,8 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import BASE_DOMAIN
-from app.models.account import Account
 from app.models.pre_registered_client import PreRegisteredClient
 from app.models.session import get_db
 from .account_pre_reg_crud import _to_out

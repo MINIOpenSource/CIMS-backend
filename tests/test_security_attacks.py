@@ -221,6 +221,7 @@ async def test_reserved_name_bypass():
                     "display_name": name,
                 },
             )
-            assert r.status_code in (400, 200), (
-                f"保留名 {name} 返回异常状态 {r.status_code}"
-            )
+            assert r.status_code in (
+                400,
+                200,
+            ), f"保留名 {name} 返回异常状态 {r.status_code}"

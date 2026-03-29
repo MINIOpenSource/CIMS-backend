@@ -4,7 +4,7 @@
 支持 ?role={user_id} 以某个用户身份操作。
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

@@ -73,7 +73,9 @@ class ClientRegisterServicer(ClientRegister_pb2_grpc.ClientRegisterServicer):
                     )
                     logger.info(
                         "配对码拦截: uid=%s code=%s ip=%s",
-                        cuid, code, peer_ip,
+                        cuid,
+                        code,
+                        peer_ip,
                     )
                     return ClientRegisterScRsp_pb2.ClientRegisterScRsp(
                         Retcode=Retcode_pb2.PairingRequired,
@@ -86,9 +88,7 @@ class ClientRegisterServicer(ClientRegister_pb2_grpc.ClientRegisterServicer):
 
             # 正常注册流程
             stmt = select(ClientRecord).where(ClientRecord.uid == cuid)
-            record = (
-                await db.execute(stmt)
-            ).scalar_one_or_none() or ClientRecord(
+            record = (await db.execute(stmt)).scalar_one_or_none() or ClientRecord(
                 uid=cuid, registered_at=datetime.now(timezone.utc)
             )
             record.client_id = request.ClientId

@@ -25,7 +25,9 @@ class Invitation(Base):
     account_id: Mapped[str] = mapped_column(String, index=True)
     inviter_user_id: Mapped[str] = mapped_column(String)
     code: Mapped[str] = mapped_column(
-        String(32), unique=True, index=True,
+        String(32),
+        unique=True,
+        index=True,
         default=lambda: secrets.token_urlsafe(12)[:16],
     )
     role_in_account: Mapped[str] = mapped_column(String(32), default="member")

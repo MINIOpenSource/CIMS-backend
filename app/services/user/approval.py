@@ -19,17 +19,12 @@ async def list_pending_users(
 ) -> list[User]:
     """查询所有 Pending 状态的用户。"""
     result = await db.execute(
-        select(User)
-        .where(User.role_code == "pending")
-        .offset(offset)
-        .limit(limit)
+        select(User).where(User.role_code == "pending").offset(offset).limit(limit)
     )
     return list(result.scalars().all())
 
 
-async def _get_pending_user(
-    user_id: str, db: AsyncSession
-) -> Optional[User]:
+async def _get_pending_user(user_id: str, db: AsyncSession) -> Optional[User]:
     """查询指定 ID 的 Pending 用户。"""
     result = await db.execute(
         select(User).where(User.id == user_id, User.role_code == "pending")

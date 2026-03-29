@@ -24,10 +24,10 @@ async def list_pairing_codes(
     if not tid:
         raise HTTPException(400, "租户上下文缺失")
     rows = (
-        await db.execute(
-            select(PairingCode).where(PairingCode.tenant_id == tid)
-        )
-    ).scalars().all()
+        (await db.execute(select(PairingCode).where(PairingCode.tenant_id == tid)))
+        .scalars()
+        .all()
+    )
     return [
         PairingCodeOut(
             id=r.id,
@@ -42,21 +42,20 @@ async def list_pairing_codes(
 
 
 @router.get("/search", response_model=list[PairingCodeOut])
-async def search_pairing_codes(
-    q: str = "", db: AsyncSession = Depends(get_db)
-):
+async def search_pairing_codes(q: str = "", db: AsyncSession = Depends(get_db)):
     """搜索配对码。"""
     tid = get_tenant_id()
     if not tid:
         raise HTTPException(400, "租户上下文缺失")
     rows = (
-        await db.execute(
-            select(PairingCode).where(PairingCode.tenant_id == tid)
-        )
-    ).scalars().all()
+        (await db.execute(select(PairingCode).where(PairingCode.tenant_id == tid)))
+        .scalars()
+        .all()
+    )
     results = [
         PairingCodeOut(
-            id=r.id, code=r.code,
+            id=r.id,
+            code=r.code,
             client_uid=getattr(r, "client_uid", ""),
             approved=getattr(r, "approved", False),
             used=getattr(r, "used", False),

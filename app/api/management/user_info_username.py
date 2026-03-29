@@ -28,9 +28,7 @@ async def change_username(
     )
     if dup.scalar_one_or_none():
         raise HTTPException(400, "该用户名已被占用")
-    user = (
-        await db.execute(select(User).where(User.id == uid))
-    ).scalar_one_or_none()
+    user = (await db.execute(select(User).where(User.id == uid))).scalar_one_or_none()
     if not user:
         raise HTTPException(404, "用户不存在")
     user.username = body.username

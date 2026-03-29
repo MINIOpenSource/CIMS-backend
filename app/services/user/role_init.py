@@ -23,23 +23,23 @@ SYSTEM_ROLES = [
 async def ensure_system_roles(db: AsyncSession) -> None:
     """确保系统内置角色存在（幂等操作）。"""
     for code, label, priority in SYSTEM_ROLES:
-        exists = await db.execute(
-            select(CustomRole).where(CustomRole.code == code)
-        )
+        exists = await db.execute(select(CustomRole).where(CustomRole.code == code))
         if exists.scalar_one_or_none():
             continue
-        db.add(CustomRole(
-            code=code, label=label,
-            priority=priority, is_system=True,
-        ))
+        db.add(
+            CustomRole(
+                code=code,
+                label=label,
+                priority=priority,
+                is_system=True,
+            )
+        )
     await db.commit()
 
 
 async def delete_role(code: str, db: AsyncSession) -> Optional[str]:
     """删除自定义角色。系统角色不可删除。"""
-    result = await db.execute(
-        select(CustomRole).where(CustomRole.code == code)
-    )
+    result = await db.execute(select(CustomRole).where(CustomRole.code == code))
     role = result.scalar_one_or_none()
     if not role:
         return "角色不存在"

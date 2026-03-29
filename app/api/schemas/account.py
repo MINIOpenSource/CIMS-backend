@@ -25,8 +25,7 @@ class AccountCreate(BaseModel):
         """Slug 格式校验（若提供）。"""
         if v is not None and not _SLUG_RE.match(v):
             raise ValueError(
-                "Slug 需 3~64 位小写字母数字连字符，"
-                "不以连字符开头/结尾"
+                "Slug 需 3~64 位小写字母数字连字符，" "不以连字符开头/结尾"
             )
         return v
 

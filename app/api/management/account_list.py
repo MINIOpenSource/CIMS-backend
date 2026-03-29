@@ -3,18 +3,15 @@
 提供当前用户有权访问的账户列表、搜索及创建申请。
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.account import AccountCreate
 from app.api.schemas.account_out import AccountOut
 from app.core.auth.dependencies import get_current_user_id
 from app.models.account import Account
 from app.models.account_member import AccountMember
 from app.models.session import get_db
-from app.models.user import User
-from app.services.user.account_creator import create_account
 
 router = APIRouter()
 

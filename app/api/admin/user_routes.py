@@ -3,14 +3,13 @@
 提供用户列表查询、搜索、创建和详情查看端点。
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.user_out import UserOut, UserUpdateRequest
+from app.api.schemas.user_out import UserOut
 from app.core.auth.dependencies import require_role
 from app.models.session import get_db
-from app.services.user.manager import list_users, get_user_by_id, update_user
-from app.services.user.register import register_user
+from app.services.user.manager import list_users
 from .user_helpers import _to_out
 
 router = APIRouter()

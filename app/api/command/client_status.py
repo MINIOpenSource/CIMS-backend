@@ -22,9 +22,7 @@ async def list_clients(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/search")
-async def search_clients(
-    q: str = "", db: AsyncSession = Depends(get_db)
-):
+async def search_clients(q: str = "", db: AsyncSession = Depends(get_db)):
     """搜索客户端。"""
     rows = (await db.execute(select(ClientRecord))).scalars().all()
     if not q:
@@ -39,9 +37,7 @@ async def get_client_detail(
     """查询特定客户端的注册详情及其当前在线状态。"""
     tid = get_tenant_id()
     record = (
-        await db.execute(
-            select(ClientRecord).where(ClientRecord.uid == client_id)
-        )
+        await db.execute(select(ClientRecord).where(ClientRecord.uid == client_id))
     ).scalar_one_or_none()
     if not record:
         raise HTTPException(status_code=404, detail="未找到设备")
@@ -59,14 +55,10 @@ async def get_client_detail(
 
 
 @router.delete("/{client_id}")
-async def delete_client(
-    client_id: str, db: AsyncSession = Depends(get_db)
-):
+async def delete_client(client_id: str, db: AsyncSession = Depends(get_db)):
     """删除客户端。"""
     record = (
-        await db.execute(
-            select(ClientRecord).where(ClientRecord.uid == client_id)
-        )
+        await db.execute(select(ClientRecord).where(ClientRecord.uid == client_id))
     ).scalar_one_or_none()
     if not record:
         raise HTTPException(status_code=404, detail="未找到设备")
@@ -82,9 +74,7 @@ async def rename_client(client_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{client_id}/status")
-async def get_client_status(
-    client_id: str, request: Request
-):
+async def get_client_status(client_id: str, request: Request):
     """获取客户端在线状态。"""
     tid = get_tenant_id()
     sm = getattr(request.app.state, "session_manager", None)

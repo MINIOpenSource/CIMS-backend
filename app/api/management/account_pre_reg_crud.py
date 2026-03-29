@@ -1,13 +1,11 @@
 """预注册客户端 CRUD 路由。"""
 
-import uuid
-from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.pre_reg import PreRegCreate, PreRegOut
+from app.api.schemas.pre_reg import PreRegOut
 from app.models.pre_registered_client import PreRegisteredClient
 from app.models.session import get_db
 
@@ -32,12 +30,16 @@ async def list_pre_regs(
 ):
     """列出预注册客户端。"""
     rows = (
-        await db.execute(
-            select(PreRegisteredClient).where(
-                PreRegisteredClient.account_id == account_id
+        (
+            await db.execute(
+                select(PreRegisteredClient).where(
+                    PreRegisteredClient.account_id == account_id
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [_to_out(r) for r in rows]
 
 
@@ -49,15 +51,16 @@ async def search_pre_regs(
 ):
     """搜索预注册客户端。"""
     rows = (
-        await db.execute(
-            select(PreRegisteredClient).where(
-                PreRegisteredClient.account_id == account_id
+        (
+            await db.execute(
+                select(PreRegisteredClient).where(
+                    PreRegisteredClient.account_id == account_id
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not q:
         return [_to_out(r) for r in rows]
-    return [
-        _to_out(r) for r in rows
-        if q.lower() in (r.class_identity or "").lower()
-    ]
+    return [_to_out(r) for r in rows if q.lower() in (r.class_identity or "").lower()]

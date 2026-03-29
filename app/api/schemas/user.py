@@ -42,7 +42,5 @@ class UserRegisterRequest(BaseModel):
     def _check_username(cls, v: Optional[str]) -> Optional[str]:
         """用户名格式校验（若提供）。"""
         if v is not None and not _USERNAME_RE.match(v):
-            raise ValueError(
-                "用户名需 3~64 位，字母开头，仅含字母数字下划线"
-            )
+            raise ValueError("用户名需 3~64 位，字母开头，仅含字母数字下划线")
         return v

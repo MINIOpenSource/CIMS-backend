@@ -15,6 +15,7 @@ import pytest_asyncio  # noqa: E402
 # 加载 .env 文件（确保测试使用真实配置）
 try:
     from dotenv import load_dotenv
+
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 except ImportError:
     pass
@@ -54,9 +55,7 @@ async def setup_infra():
     async with AsyncSessionLocal() as db:
         from sqlalchemy import select
 
-        result = await db.execute(
-            select(Account).where(Account.id == TEST_ACCOUNT_ID)
-        )
+        result = await db.execute(select(Account).where(Account.id == TEST_ACCOUNT_ID))
         if result.scalar_one_or_none() is None:
             db.add(
                 Account(

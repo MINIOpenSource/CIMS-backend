@@ -6,7 +6,6 @@
 import json
 import logging
 
-logger = logging.getLogger(__name__)
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
@@ -15,6 +14,8 @@ from app.models.database import get_db
 from app.api.schemas.batch import BatchRequest, BatchOperationAction
 from .model_map import MODEL_MAP
 import app.api.command as _cmd_pkg
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

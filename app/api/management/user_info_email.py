@@ -22,9 +22,7 @@ async def change_email(
     uid: str = Depends(get_current_user_id),
 ):
     """修改当前用户邮箱。"""
-    user = (
-        await db.execute(select(User).where(User.id == uid))
-    ).scalar_one_or_none()
+    user = (await db.execute(select(User).where(User.id == uid))).scalar_one_or_none()
     if not user:
         raise HTTPException(404, "用户不存在")
     user.email = body.email

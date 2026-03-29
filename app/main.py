@@ -8,8 +8,6 @@
 import asyncio
 import logging
 import os
-import signal
-import sys
 from pathlib import Path
 
 import uvicorn
@@ -72,21 +70,33 @@ async def _start_servers():
     }
 
     c_cfg = uvicorn.Config(
-        client_app, host="0.0.0.0", port=CLIENT_PORT,
-        log_config=uv_log_config, access_log=False,
+        client_app,
+        host="0.0.0.0",
+        port=CLIENT_PORT,
+        log_config=uv_log_config,
+        access_log=False,
     )
     m_cfg = uvicorn.Config(
-        management_app, host="0.0.0.0", port=MANAGEMENT_PORT,
-        log_config=uv_log_config, access_log=False,
+        management_app,
+        host="0.0.0.0",
+        port=MANAGEMENT_PORT,
+        log_config=uv_log_config,
+        access_log=False,
     )
     a_cfg = uvicorn.Config(
-        admin_app, host="0.0.0.0", port=ADMIN_PORT,
-        log_config=uv_log_config, access_log=False,
+        admin_app,
+        host="0.0.0.0",
+        port=ADMIN_PORT,
+        log_config=uv_log_config,
+        access_log=False,
     )
 
     logger.info(
         "启动服务 — Client:%d  Management:%d  Admin:%d  (PID: %d)",
-        CLIENT_PORT, MANAGEMENT_PORT, ADMIN_PORT, os.getpid(),
+        CLIENT_PORT,
+        MANAGEMENT_PORT,
+        ADMIN_PORT,
+        os.getpid(),
     )
 
     servers = [

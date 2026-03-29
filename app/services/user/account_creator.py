@@ -42,19 +42,23 @@ async def create_account(
         created_at=now,
     )
     db.add(account)
-    db.add(AccountMember(
-        id=str(uuid.uuid4()),
-        user_id=user_id,
-        account_id=account.id,
-        role_in_account="owner",
-        joined_at=now,
-    ))
-    for key, val in _DEFAULT_QUOTAS:
-        db.add(AccountQuota(
+    db.add(
+        AccountMember(
             id=str(uuid.uuid4()),
+            user_id=user_id,
             account_id=account.id,
-            quota_key=key,
-            max_value=val,
-        ))
+            role_in_account="owner",
+            joined_at=now,
+        )
+    )
+    for key, val in _DEFAULT_QUOTAS:
+        db.add(
+            AccountQuota(
+                id=str(uuid.uuid4()),
+                account_id=account.id,
+                quota_key=key,
+                max_value=val,
+            )
+        )
     await db.commit()
     return account

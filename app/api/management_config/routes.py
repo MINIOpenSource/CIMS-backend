@@ -35,12 +35,14 @@ async def get_config(
     # 尝试匹配预注册客户端
     label = ""
     if class_identity and account:
-        pre_reg = (await db.execute(
-            select(PreRegisteredClient).where(
-                PreRegisteredClient.account_id == account.id,
-                PreRegisteredClient.class_identity == class_identity,
+        pre_reg = (
+            await db.execute(
+                select(PreRegisteredClient).where(
+                    PreRegisteredClient.account_id == account.id,
+                    PreRegisteredClient.class_identity == class_identity,
+                )
             )
-        )).scalar_one_or_none()
+        ).scalar_one_or_none()
         if pre_reg:
             label = pre_reg.label
 

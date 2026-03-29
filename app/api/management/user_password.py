@@ -23,9 +23,7 @@ async def change_password(
     uid: str = Depends(get_current_user_id),
 ):
     """修改密码（需验证旧密码）。"""
-    user = (
-        await db.execute(select(User).where(User.id == uid))
-    ).scalar_one_or_none()
+    user = (await db.execute(select(User).where(User.id == uid))).scalar_one_or_none()
     if not user:
         raise HTTPException(404, "用户不存在")
     if not verify_password(body.old_password, user.hashed_password):

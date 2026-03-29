@@ -63,9 +63,7 @@ class AccountContextMiddleware(BaseHTTPMiddleware):
         async with AsyncSessionLocal() as db:
             from sqlalchemy import select
 
-            result = await db.execute(
-                select(Account).where(Account.id == account_id)
-            )
+            result = await db.execute(select(Account).where(Account.id == account_id))
             account = result.scalar_one_or_none()
 
         if not account or not account.is_active:
@@ -75,16 +73,12 @@ class AccountContextMiddleware(BaseHTTPMiddleware):
             )
 
         # 成员资格校验（跳过 /command 子路径，其使用独立的传统令牌认证）
-        remaining_path = path[match.end() - 1:]  # 从 account_id 后的 / 开始
-        needs_membership = (
-            self._require_membership and "/command" not in remaining_path
-        )
+        remaining_path = path[match.end() - 1 :]  # 从 account_id 后的 / 开始
+        needs_membership = self._require_membership and "/command" not in remaining_path
         if needs_membership:
             user_id = getattr(request.state, "current_user_id", None)
             if not user_id:
-                return JSONResponse(
-                    status_code=401, content={"detail": "未认证"}
-                )
+                return JSONResponse(status_code=401, content={"detail": "未认证"})
             from app.models.account_member import AccountMember
 
             async with AsyncSessionLocal() as db:
