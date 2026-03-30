@@ -20,8 +20,10 @@ from app.core.tenant.context import get_tenant_id
 
 logger = logging.getLogger(__name__)
 
-# 免认证路径白名单
+# 免认证路径白名单（精确匹配）
 _EXEMPT = {"/", "/user/auth", "/user/apply"}
+# 免认证路径前缀（前缀匹配）
+_EXEMPT_PREFIXES = ("/user/availability/",)
 _DENY = JSONResponse(status_code=403, content={"detail": "权限不足"})
 _NO_AUTH = JSONResponse(status_code=401, content={"detail": "未认证"})
 
@@ -37,7 +39,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
         if request.method == "OPTIONS":
             return await call_next(request)
         path = request.url.path
-        if path in _EXEMPT:
+        if path in _EXEMPT or path.startswith(_EXEMPT_PREFIXES):
             return await call_next(request)
         # 提取 Bearer Token
         auth = request.headers.get("authorization", "")

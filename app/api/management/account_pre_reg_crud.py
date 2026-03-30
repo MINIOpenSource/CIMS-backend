@@ -1,6 +1,5 @@
 """预注册客户端 CRUD 路由。"""
 
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

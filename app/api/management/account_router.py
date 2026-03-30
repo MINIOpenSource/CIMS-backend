@@ -25,9 +25,15 @@ from .account_access_delete import router as access_d_r
 from .account_invitation import router as inv_r
 from .account_invitation_create import router as inv_c_r
 from .account_invitation_revoke import router as inv_v_r
+from .account_availability_slug import router as avail_slug_r
 from .bulk import router as bulk_r
 
 router = APIRouter()
+
+# /account/availability/*（需认证）
+router.include_router(
+    avail_slug_r, prefix="/account/availability", tags=["Availability"]
+)
 
 # /account 顶层
 router.include_router(list_r, prefix="/account", tags=["Account"])
