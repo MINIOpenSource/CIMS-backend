@@ -145,6 +145,26 @@ CIMS 提供四个独立端口的 API 服务：
 
 **响应（需 2FA）** — `{"requires_2fa": true, "temp_token": "临时令牌"}`
 
+#### `GET /user/availability/mail`
+
+检查邮箱是否可用（未被占用）。无需认证。
+
+| 参数 | 位置 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `value` | query | string | ✅ | 待检查的邮箱地址 |
+
+**响应** — `{"available": true|false}`
+
+#### `GET /user/availability/username`
+
+检查用户名是否可用（未被占用、非系统保留且格式合法）。无需认证。
+
+| 参数 | 位置 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `value` | query | string | ✅ | 待检查的用户名（3-64位） |
+
+**响应** — `{"available": true|false, "reason": "不可用原因(可选)"}`
+
 #### `GET /user/info`
 
 获取当前用户信息。
@@ -212,6 +232,16 @@ CIMS 提供四个独立端口的 API 服务：
 重置密码（自助流程）。
 
 ### 账户管理
+
+#### `GET /account/availability/slug`
+
+检查账户 URL 标识 (Slug) 是否可用。需登录。
+
+| 参数 | 位置 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `value` | query | string | ✅ | 待检查的 Slug（3-64位） |
+
+**响应** — `{"available": true|false, "reason": "不可用原因(可选)"}`
 
 #### `GET /account/list`
 
