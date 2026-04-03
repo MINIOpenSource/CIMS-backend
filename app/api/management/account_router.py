@@ -44,34 +44,37 @@ router.include_router(apply_r, prefix="/account", tags=["Account"])
 router.include_router(detail_r, prefix="/account", tags=["Account"])
 router.include_router(info_r, prefix="/account", tags=["Account"])
 
-# 资源（需账户上下文）
 _acct = "/account/{account_id}"
-router.include_router(res_r, prefix=f"{_acct}", tags=["Resource"])
+
+# 1. 客户端
 router.include_router(cli_r, prefix=f"{_acct}/client", tags=["Client"])
 
-# 配对码
+# 2. 配对码
 router.include_router(pair_r, prefix=f"{_acct}/pairing", tags=["Pairing"])
 router.include_router(pair_act_r, prefix=f"{_acct}/pairing", tags=["Pairing"])
 
-# 预注册
+# 3. 预注册
 _pre = f"{_acct}/pre-registration"
 router.include_router(prereg_r, prefix=_pre, tags=["PreReg"])
 router.include_router(prereg_d_r, prefix=_pre, tags=["PreReg"])
 router.include_router(prereg_p_r, prefix=_pre, tags=["PreReg"])
 router.include_router(prereg_c_r, prefix=_pre, tags=["PreReg"])
 
-# 访问控制
+# 4. 访问控制
 _acc = f"{_acct}/access"
 router.include_router(access_r, prefix=_acc, tags=["Access"])
 router.include_router(access_s_r, prefix=_acc, tags=["Access"])
 router.include_router(access_u_r, prefix=_acc, tags=["Access"])
 router.include_router(access_d_r, prefix=_acc, tags=["Access"])
 
-# 邀请
+# 5. 邀请
 _inv = f"{_acct}/invitation"
 router.include_router(inv_r, prefix=_inv, tags=["Invite"])
 router.include_router(inv_c_r, prefix=_inv, tags=["Invite"])
 router.include_router(inv_v_r, prefix=_inv, tags=["Invite"])
+
+# 6. 通用资源（放在最后，因为其路径变量 /{resource_type} 会拦截其他具体路径）
+router.include_router(res_r, prefix=f"{_acct}", tags=["Resource"])
 
 # 批量操作
 router.include_router(bulk_r, prefix="/account/bulk", tags=["Bulk"])
