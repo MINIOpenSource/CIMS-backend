@@ -69,7 +69,7 @@ CIMS 提供四个独立端口的 API 服务：
   "IsManagementEnabled": true,
   "ManagementServerKind": 1,
   "ManagementServer": "https://{slug}.example.com",
-  "ManagementServerGrpc": "grpc://{slug}.example.com",
+  "ManagementServerGrpc": "https://{slug}.example.com",
   "ClassIdentity": "",
   "PreRegisteredLabel": "三年一班",
   "ManifestUrlTemplate": ""

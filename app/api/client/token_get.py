@@ -7,6 +7,7 @@ import json
 from fastapi import APIRouter, HTTPException, Request
 from sqlalchemy import select
 from app.core.tenant.context import set_search_path
+from app.core.client_ip import get_client_ip_from_request
 from app.models.database import AsyncSessionLocal
 from app.services.resource_token import resolve_token
 from app.api.command.model_map import MODEL_MAP
@@ -28,7 +29,7 @@ async def get_resource_by_token(token: str, request: Request):
         raise HTTPException(status_code=400, detail="Invalid resource type")
 
     # IP 鉴权
-    client_ip = request.client.host if request.client else ""
+    client_ip = get_client_ip_from_request(request)
     if token_ip:
         if client_ip not in await get_tenant_online_ips(tenant_id):
             return {}

@@ -29,7 +29,9 @@ async def get_tenant_online_ips(tid: str) -> set[str]:
     ips = set()
     async for key in rd.scan_iter(match=f"{prefix}*"):  # pragma: no cover
         data = await rd.hgetall(key)
-        ip = parse_grpc_peer_ip(data.get("ip", ""))
+        raw_ip = data.get("ip", "")
+        # 兼容旧格式（ipv4:x.x.x.x:port）和新格式（直接 IP）
+        ip = parse_grpc_peer_ip(raw_ip) if raw_ip.startswith(("ipv4:", "ipv6:")) else raw_ip
         if ip:
             ips.add(ip)
     return ips

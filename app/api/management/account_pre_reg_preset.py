@@ -38,7 +38,7 @@ async def download_preset(
         "IsManagementEnabled": True,
         "ManagementServerKind": 1,
         "ManagementServer": f"https://{acct.slug}.{BASE_DOMAIN}",
-        "ManagementServerGrpc": f"grpc://{acct.slug}.{BASE_DOMAIN}",
+        "ManagementServerGrpc": f"https://{acct.slug}.{BASE_DOMAIN}",
         "ClassIdentity": pre_reg.class_identity,
         "ManifestUrlTemplate": "",
     }

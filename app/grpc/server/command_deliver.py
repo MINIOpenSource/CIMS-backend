@@ -8,6 +8,7 @@ import grpc
 import logging
 from typing import Dict
 from app.grpc.api.Protobuf.Service import ClientCommandDeliver_pb2_grpc
+from app.core.client_ip import get_client_ip_from_grpc
 from .helpers import get_metadata_dict, get_tenant_id_safe
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,9 @@ class ClientCommandDeliverServicer(
         tid = await self._sm.get_session_tenant(sid) or get_tenant_id_safe()
 
         # 注册在线状态与有界消息队列
-        await self._sm.set_client_online(tid, real_cuid, ip=context.peer() or "")
+        await self._sm.set_client_online(
+            tid, real_cuid, ip=get_client_ip_from_grpc(context)
+        )
         q_key = f"{tid}:{real_cuid}"
         queue = asyncio.Queue(maxsize=_QUEUE_MAXSIZE)
         self.client_queues[q_key] = queue

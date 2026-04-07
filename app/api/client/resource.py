@@ -6,6 +6,7 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from app.core.tenant.context import get_tenant_id
+from app.core.client_ip import get_client_ip_from_request
 from app.services.resource_token.creator import create_token
 
 router = APIRouter()
@@ -29,7 +30,7 @@ async def get_client_resource(resource_type: str, name: str, request: Request):
         raise HTTPException(status_code=400, detail="Invalid resource")
 
     tenant_id = get_tenant_id()
-    client_ip = request.client.host if request.client else ""
+    client_ip = get_client_ip_from_request(request)
 
     token = await create_token(tenant_id, resource_type, name, client_ip=client_ip)
     return RedirectResponse(url=f"/get?token={token}", status_code=302)

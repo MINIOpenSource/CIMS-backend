@@ -17,6 +17,7 @@ from starlette.responses import JSONResponse
 from app.core.config import REDIS_DB_AUTH
 from app.core.redis.accessor import get_redis
 from app.core.tenant.context import get_tenant_id
+from app.core.client_ip import get_client_ip_from_request
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
             ok = await _check_legacy_token(token, path)
             if ok:
                 return await call_next(request)
-        client_ip = request.client.host if request.client else "unknown"
+        client_ip = get_client_ip_from_request(request)
         logger.warning("认证失败：ip=%s path=%s", client_ip, path)
         return _DENY
 

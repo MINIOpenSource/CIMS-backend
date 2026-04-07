@@ -50,7 +50,7 @@ async def get_config(
         "IsManagementEnabled": True,
         "ManagementServerKind": 1,
         "ManagementServer": f"https://{slug}.{BASE_DOMAIN}",
-        "ManagementServerGrpc": f"grpc://{slug}.{BASE_DOMAIN}",
+        "ManagementServerGrpc": f"https://{slug}.{BASE_DOMAIN}",
         "ClassIdentity": class_identity,
         "PreRegisteredLabel": label,
         "ManifestUrlTemplate": "",

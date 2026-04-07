@@ -22,6 +22,7 @@ from typing import Callable
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+from app.core.client_ip import get_client_ip_from_request
 
 # ---- 常量 ----
 _LOG_DIR = Path(".cims") / "logs"
@@ -207,7 +208,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """拦截请求，记录详细日志。"""
         start = time.perf_counter()
-        client_ip = request.client.host if request.client else "unknown"
+        client_ip = get_client_ip_from_request(request)
         method = request.method
         path = request.url.path
         query = str(request.url.query) if request.url.query else ""

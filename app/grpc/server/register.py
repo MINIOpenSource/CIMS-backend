@@ -18,22 +18,13 @@ from app.services.pairing_utils import (
     create_pairing_request,
     check_approved,
 )
+from app.core.client_ip import get_client_ip_from_grpc
 from .helpers import get_tenant_id_safe
 from .unregister import handle_unregister
 
 logger = logging.getLogger(__name__)
 
 _PAIRING_KEY = "pairing_enabled"
-
-
-def _extract_peer_ip(context) -> str:
-    """从 gRPC 上下文中提取客户端 IP。"""
-    peer = context.peer()
-    if peer and ":" in peer:
-        parts = peer.split(":")
-        if len(parts) >= 2:
-            return parts[1]
-    return "unknown"
 
 
 async def _is_pairing_enabled(db) -> bool:
@@ -53,7 +44,7 @@ class ClientRegisterServicer(ClientRegister_pb2_grpc.ClientRegisterServicer):
         """记录新客户端信息或更新现有设备的 MAC 地址。"""
         cuid = request.ClientUid
         tid = get_tenant_id_safe()
-        peer_ip = _extract_peer_ip(context)
+        peer_ip = get_client_ip_from_grpc(context)
 
         async with AsyncSessionLocal() as db:
             from app.core.tenant.context import set_search_path
