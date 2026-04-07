@@ -10,7 +10,7 @@ from app.core.tenant.host_parser import extract_slug_from_host
 from app.models.database import AsyncSessionLocal
 
 # 不需要 session 鉴权的方法名后缀白名单
-_AUTH_EXEMPT = {"Register", "BeginHandshake"}
+_AUTH_EXEMPT = {"Register", "BeginHandshake", "CompleteHandshake"}
 
 
 class TenantInterceptor(grpc.aio.ServerInterceptor):
