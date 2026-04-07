@@ -47,5 +47,5 @@ def _build_manifest(cp, tl, sub, ds, pol, comp, cred, ver):
         PolicySource=_src("Policy", pol),
         ComponentsSource=_src("Components", comp),
         CredentialSource=_src("Credentials", cred),
-        CoreVersion={"Major": 1, "Minor": 4, "Build": 0, "Revision": 0},
+        CoreVersion="2.0.0.0",
     )

@@ -19,4 +19,4 @@ class ClientManifest(BaseModel):
     CredentialSource: Dict[str, Any]
     ServerKind: int = 1
     OrganizationName: str = "CIMS Server"
-    CoreVersion: Dict[str, int]
+    CoreVersion: str = "2.0.0.0"

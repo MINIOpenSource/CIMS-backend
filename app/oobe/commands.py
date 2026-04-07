@@ -16,6 +16,7 @@ def dispatch(args) -> None:
         "daemon": _h_daemon,
         "start": _h_start,
         "stop": _h_stop,
+        "restart": _h_restart,
         "startup": _h_startup,
         "monit": _h_monit,
         "status": _h_status,
@@ -62,6 +63,13 @@ def _h_stop(_a):
     from app.oobe.cmd_stop import handle_stop
 
     handle_stop()
+
+
+def _h_restart(_a):
+    """处理 restart 子命令（重启服务）。"""
+    from app.oobe.cmd_restart import handle_restart
+
+    handle_restart()
 
 
 def _h_startup(_a):
