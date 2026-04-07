@@ -51,7 +51,8 @@ class GPGKeyManager:
         """解密客户端发回的加密挑战令牌。"""
         try:
             msg = pgpy.PGPMessage.from_blob(encrypted)
-            return self.private_key.decrypt(msg).message
+            raw = self.private_key.decrypt(msg).message
+            return bytes(raw) if isinstance(raw, bytearray) else raw
         except Exception as e:
             logger.error("解密失败: %s", e)
             return None

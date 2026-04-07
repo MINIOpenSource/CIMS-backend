@@ -48,7 +48,7 @@ async def get_config(
 
     return {
         "IsManagementEnabled": True,
-        "ManagementServerKind": 1,
+        "ManagementServerKind": 2,
         "ManagementServer": f"https://{slug}.{BASE_DOMAIN}",
         "ManagementServerGrpc": f"https://{slug}.{BASE_DOMAIN}",
         "ClassIdentity": class_identity,
