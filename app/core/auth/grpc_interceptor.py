@@ -23,7 +23,11 @@ class TenantInterceptor(grpc.aio.ServerInterceptor):
     async def intercept_service(self, continuation, handler_call_details):
         """提取 tenant-id 并对非白名单方法校验 session。"""
         metadata = dict(handler_call_details.invocation_metadata)
-        authority = metadata.get(":authority", "")
+        authority = (
+            metadata.get("x-forwarded-host")
+            or metadata.get("host")
+            or metadata.get(":authority", "")
+        )
         slug = extract_slug_from_host(authority) or metadata.get("tenant-id")
 
         if slug:
