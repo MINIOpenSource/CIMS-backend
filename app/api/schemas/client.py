@@ -4,7 +4,7 @@
 """
 
 from typing import Any, Dict
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ClientManifest(BaseModel):
@@ -20,3 +20,7 @@ class ClientManifest(BaseModel):
     ServerKind: int = 1
     OrganizationName: str = "CIMS Server"
     CoreVersion: str = "2.0.0.0"
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
