@@ -4,7 +4,7 @@
 """
 
 import time
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.database import get_db, ClientProfile
@@ -14,7 +14,9 @@ router = APIRouter()
 
 
 @router.get("/v1/client/{client_uid}/manifest", response_model=ClientManifest)
-async def get_client_manifest(client_uid: str, db: AsyncSession = Depends(get_db)):
+async def get_client_manifest(
+    request: Request, client_uid: str, db: AsyncSession = Depends(get_db)
+):
     """为请求的 UID 构建完整的 Manifest JSON 数据。"""
     stmt = select(ClientProfile).where(ClientProfile.client_id == client_uid)
     result = await db.execute(stmt)
@@ -30,14 +32,18 @@ async def get_client_manifest(client_uid: str, db: AsyncSession = Depends(get_db
     cred = getattr(p, "credentials", None) or "default"
     cur = int(time.time())
 
-    return _build_manifest(cp, tl, sub, ds, pol, comp, cred, cur)
+    return _build_manifest(request, cp, tl, sub, ds, pol, comp, cred, cur)
 
 
-def _build_manifest(cp, tl, sub, ds, pol, comp, cred, ver):
+def _build_manifest(request: Request, cp, tl, sub, ds, pol, comp, cred, ver):
     """组装各资源源的 Manifest 结构体。"""
 
     def _src(rt, n):
-        return {"Value": f"/api/v1/client/{rt}?name={n}", "Version": ver}
+        # 使用 request.url_for 生成完整的绝对 URL，并附带 name 参数
+        # 目标端点为 resource.py 中的 get_client_resource
+        url = request.url_for("get_client_resource", resource_type=rt)
+        full_url = str(url.include_query_params(name=n))
+        return {"Value": full_url, "Version": ver}
 
     return ClientManifest(
         ClassPlanSource=_src("ClassPlan", cp),
