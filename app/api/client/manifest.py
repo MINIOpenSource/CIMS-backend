@@ -7,10 +7,14 @@ import time
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
+
 from app.models.database import get_db, ClientProfile
 from app.api.schemas.client import ClientManifest
+from app.core.client_ip import get_client_ip_from_request
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/v1/client/{client_uid}/manifest", response_model=ClientManifest)
@@ -18,6 +22,13 @@ async def get_client_manifest(
     request: Request, client_uid: str, db: AsyncSession = Depends(get_db)
 ):
     """为请求的 UID 构建完整的 Manifest JSON 数据。"""
+    slug = getattr(request.state, "tenant_slug", "Unknown")
+    client_ip = get_client_ip_from_request(request)
+    logger.info(
+        "[%s] Client API 详细信息: 请求 Manifest (租户 Slug=%s, UUID=%s)", 
+        client_ip, slug, client_uid
+    )
+
     stmt = select(ClientProfile).where(ClientProfile.client_id == client_uid)
     result = await db.execute(stmt)
     p = result.scalar_one_or_none() or ClientProfile()

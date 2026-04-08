@@ -49,6 +49,7 @@ class TenantMiddleware(BaseHTTPMiddleware):
         s_tok = schema_ctx.set(f"tenant_{slug}")
         try:
             request.state.tenant_id = account.id
+            request.state.tenant_slug = slug
             return await call_next(request)
         finally:
             schema_ctx.reset(s_tok)

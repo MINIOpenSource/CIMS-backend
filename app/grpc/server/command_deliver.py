@@ -40,12 +40,15 @@ class ClientCommandDeliverServicer(
         tid = await self._sm.get_session_tenant(sid) or get_tenant_id_safe()
 
         # 注册在线状态与有界消息队列
+        client_ip = get_client_ip_from_grpc(context)
         await self._sm.set_client_online(
-            tid, real_cuid, ip=get_client_ip_from_grpc(context)
+            tid, real_cuid, ip=client_ip
         )
         q_key = f"{tid}:{real_cuid}"
         queue = asyncio.Queue(maxsize=_QUEUE_MAXSIZE)
         self.client_queues[q_key] = queue
+
+        logger.info("[%s] gRPC 流已建立: 状态=Online, tid=%s, cuid=%s", client_ip, tid, real_cuid)
 
         try:
             from .command_utils import run_command_loop
@@ -57,6 +60,7 @@ class ClientCommandDeliverServicer(
         finally:
             self.client_queues.pop(q_key, None)
             await self._sm.set_client_offline(tid, real_cuid)
+            logger.info("[%s] gRPC 流已断开: 状态=Offline, tid=%s, cuid=%s", client_ip, tid, real_cuid)
 
     async def send_command(self, tid, cuid, cmd):
         """API 向特定客户端注入指令的公共方法。"""

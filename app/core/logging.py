@@ -26,7 +26,7 @@ from app.core.client_ip import get_client_ip_from_request
 
 # ---- 常量 ----
 _LOG_DIR = Path(".cims") / "logs"
-_LOG_FORMAT = "%(asctime)s.%(msecs)03d | %(levelname)-5s | %(port_tag)-7s | %(name)-30s | %(message)s"
+_LOG_FORMAT = "%(asctime)s.%(msecs)03d | %(levelname)-5s | %(port_tag)s | %(name)-30s | %(message)s"
 _LOG_DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 # 端口标签映射
@@ -92,7 +92,10 @@ class _ColorFormatter(logging.Formatter):
         # 着色端口标签和级别
         original_tag = record.port_tag  # type: ignore[attr-defined]
         original_levelname = record.levelname
-        record.port_tag = f"{tag_color}{tag}{self._RESET}"  # type: ignore[attr-defined]
+        
+        # 补齐空格使长短不同的标签保持视觉等宽，不受转义字符影响
+        padded_tag = f"{tag:<7}"
+        record.port_tag = f"{tag_color}{padded_tag}{self._RESET}"  # type: ignore[attr-defined]
         record.levelname = f"{level_color}{record.levelname}{self._RESET}"
 
         result = super().format(record)
@@ -215,11 +218,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # 记录请求开始
         self.logger.debug(
-            "→ %s %s%s  来自 %s",
+            "[%s] → %s %s%s",
+            client_ip,
             method,
             path,
             f"?{query}" if query else "",
-            client_ip,
         )
 
         try:
@@ -227,10 +230,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception as exc:
             elapsed = (time.perf_counter() - start) * 1000
             self.logger.error(
-                "✗ %s %s  来自 %s  耗时 %.1fms  异常: %s",
+                "[%s] ✗ %s %s  耗时 %.1fms  异常: %s",
+                client_ip,
                 method,
                 path,
-                client_ip,
                 elapsed,
                 exc,
             )
@@ -248,11 +251,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             log_fn = self.logger.info
 
         log_fn(
-            "%s %s %s  来自 %s  耗时 %.1fms",
+            "[%s] %s %s %s  耗时 %.1fms",
+            client_ip,
             status,
             method,
             path,
-            client_ip,
             elapsed,
         )
 
