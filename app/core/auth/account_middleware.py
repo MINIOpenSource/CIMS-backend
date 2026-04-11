@@ -20,6 +20,11 @@ from starlette.responses import JSONResponse
 
 from app.core.tenant.context import tenant_ctx, schema_ctx
 from app.models.engine import AsyncSessionLocal
+from app.core.security.codes import (
+    ERR_RESOURCE_LOCKED,
+    ERR_AUTH_MISSING,
+    ERR_TENANT_NO_ACCESS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -68,8 +73,8 @@ class AccountContextMiddleware(BaseHTTPMiddleware):
 
         if not account or not account.is_active:
             return JSONResponse(
-                status_code=404,
-                content={"detail": "账户不存在或已停用"},
+                status_code=403,
+                content={"code": ERR_RESOURCE_LOCKED, "msg": "账户异常"},
             )
 
         # 成员资格校验（跳过 /command 子路径，其使用独立的传统令牌认证）
@@ -78,7 +83,9 @@ class AccountContextMiddleware(BaseHTTPMiddleware):
         if needs_membership:
             user_id = getattr(request.state, "current_user_id", None)
             if not user_id:
-                return JSONResponse(status_code=401, content={"detail": "未认证"})
+                return JSONResponse(
+                    status_code=401, content={"code": ERR_AUTH_MISSING, "msg": "未验证"}
+                )
             from app.models.account_member import AccountMember
 
             async with AsyncSessionLocal() as db:
@@ -94,7 +101,7 @@ class AccountContextMiddleware(BaseHTTPMiddleware):
             if not member:
                 return JSONResponse(
                     status_code=403,
-                    content={"detail": "无权访问该账户"},
+                    content={"code": ERR_TENANT_NO_ACCESS, "msg": "越权访问"},
                 )
 
         # 设置租户上下文

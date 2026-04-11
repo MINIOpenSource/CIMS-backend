@@ -11,7 +11,6 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="cims", description="CIMS 后端管理工具")
     sub = p.add_subparsers(dest="command")
     # 基础命令
-    sub.add_parser("init", help="初始化系统（同时生成 systemd 服务文件）")
     sub.add_parser("daemon", help="前台运行服务（供 systemd 管理）")
     sub.add_parser("start", help="启动服务（systemctl start）")
     sub.add_parser("stop", help="停止服务（systemctl stop）")

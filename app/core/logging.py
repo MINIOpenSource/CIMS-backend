@@ -92,7 +92,7 @@ class _ColorFormatter(logging.Formatter):
         # 着色端口标签和级别
         original_tag = record.port_tag  # type: ignore[attr-defined]
         original_levelname = record.levelname
-        
+
         # 补齐空格使长短不同的标签保持视觉等宽，不受转义字符影响
         padded_tag = f"{tag:<7}"
         record.port_tag = f"{tag_color}{padded_tag}{self._RESET}"  # type: ignore[attr-defined]

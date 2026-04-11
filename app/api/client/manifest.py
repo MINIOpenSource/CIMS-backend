@@ -24,10 +24,11 @@ async def get_client_manifest(
     """为请求的 UID 构建完整的 Manifest JSON 数据。"""
     slug = getattr(request.state, "tenant_slug", "Unknown")
     client_ip = get_client_ip_from_request(request)
-    short_uid = f"{client_uid[:8]}...{client_uid[-5:]}" if len(client_uid) > 13 else client_uid
+    short_uid = (
+        f"{client_uid[:8]}...{client_uid[-5:]}" if len(client_uid) > 13 else client_uid
+    )
     logger.info(
-        "[%s][%s][%s] Client API 详细信息: 请求 Manifest", 
-        client_ip, slug, short_uid
+        "[%s][%s][%s] Client API 详细信息: 请求 Manifest", client_ip, slug, short_uid
     )
 
     stmt = select(ClientProfile).where(ClientProfile.client_id == client_uid)

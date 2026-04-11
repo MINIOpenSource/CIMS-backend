@@ -5,14 +5,15 @@
 
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from app.api.client.router import router as client_router
 from app.api.client.token_get import router as token_get_router
 from app.api.management_config.routes import router as mc_router
 from app.core.auth.http_middleware import TenantMiddleware
 from app.core.logging import RequestLoggingMiddleware, PORT_TAG_CLIENT
+from app.core.security.middleware import CCProtectMiddleware
+from app.core.security.errors import apply_app_safeguards
 from .lifespan import app_lifespan
 
 logger = logging.getLogger(__name__)
@@ -31,18 +32,14 @@ client_app.add_middleware(
 
 client_app.add_middleware(TenantMiddleware)
 client_app.add_middleware(RequestLoggingMiddleware, port_tag=PORT_TAG_CLIENT)
+client_app.add_middleware(CCProtectMiddleware)
+
+apply_app_safeguards(client_app)
 
 # 挂载业务路由
 client_app.include_router(client_router, prefix="/api", tags=["Client"])
 client_app.include_router(mc_router, prefix="/api", tags=["Guide"])
 client_app.include_router(token_get_router, tags=["TokenGet"])
-
-
-@client_app.exception_handler(Exception)
-async def _global_exc(request: Request, exc: Exception):
-    """全局异常拦截，避免泄露内部信息。"""
-    logger.exception("未处理异常: %s %s", request.url.path, exc)
-    return JSONResponse(status_code=500, content={"detail": "服务器内部错误"})
 
 
 @client_app.get("/")

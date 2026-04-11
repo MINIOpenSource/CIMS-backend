@@ -13,6 +13,38 @@ CIMS 提供四个独立端口的 API 服务：
 
 ---
 
+## OOBE 引导配置 `:27043`
+
+仅在系统尚未初始化时，通过 Admin 端口 (`27043`) 暴露。常规运行态将对其进行 HTTP 503 阻拦。
+
+### `POST /oobe/verify`
+
+验证后台启动时下发的终端配套码并颁发临时认证 Token。
+
+| 参数 | 位置 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `passcode` | Form | string | ✅ | 终端随机生出的 8 位大写字母与数字组合 |
+
+**响应** — `{"token": "UUID 临时权限令牌"}`
+
+### `POST /oobe/configure`
+
+收录系统前置必备配参落盘，完成建库操作和超管分配，无碍执行后主动触发自身程序冷重启。
+
+| 参数 | 位置 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `token` | Form | string | ✅ | `verify` 返回的临时 Token |
+| `db_url` | Form | string | ✅ | PostgreSQL 连接串 |
+| `redis_url` | Form | string | ✅ | Redis 连接串 |
+| `domain` | Form | string | ✅ | Root Domain |
+| `username` | Form | string | ✅ | 预设超管账号 |
+| `email` | Form | string | ✅ | 密保或系统通联邮箱 |
+| `password` | Form | string | ✅ | 初始化登录密码 |
+
+**响应** — `{"msg": "初始化完毕，系统重启中"}`
+
+---
+
 ## Client API `:27041`
 
 ### `GET /`

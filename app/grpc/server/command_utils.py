@@ -35,7 +35,12 @@ async def run_command_loop(servicer, request_iterator, queue, tid, cuid):
                 )
                 await queue.put(pong)
             else:
-                logger.info("指令流上行: 收到客户端指令 type=%s (tid=%s, cuid=%s)", req.Type, tid, cuid)
+                logger.info(
+                    "指令流上行: 收到客户端指令 type=%s (tid=%s, cuid=%s)",
+                    req.Type,
+                    tid,
+                    cuid,
+                )
 
     task = asyncio.create_task(read_task())
     try:
@@ -46,7 +51,12 @@ async def run_command_loop(servicer, request_iterator, queue, tid, cuid):
                 logger.debug("指令流下发: 返回心跳 Pong (tid=%s, cuid=%s)", tid, cuid)
             else:
                 cmd_type = getattr(msg, "Type", "Unknown")
-                logger.info("指令流下发: 推送指令 type=%s (tid=%s, cuid=%s)", cmd_type, tid, cuid)
+                logger.info(
+                    "指令流下发: 推送指令 type=%s (tid=%s, cuid=%s)",
+                    cmd_type,
+                    tid,
+                    cuid,
+                )
             yield msg
             queue.task_done()
     except (asyncio.CancelledError, asyncio.TimeoutError) as e:

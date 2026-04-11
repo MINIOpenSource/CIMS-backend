@@ -14,6 +14,7 @@ from app.core.tenant.resolver import resolve_account
 from app.core.tenant.context import tenant_ctx, schema_ctx
 from app.models.engine import AsyncSessionLocal
 from starlette.responses import JSONResponse
+from app.core.security.codes import ERR_TENANT_NO_ACCESS, ERR_RESOURCE_LOCKED
 
 # 无需租户上下文的路径
 _NO_TENANT = {"/", "/get"}
@@ -35,15 +36,15 @@ class TenantMiddleware(BaseHTTPMiddleware):
         slug = extract_slug_from_host(request.headers.get("host", ""))
         if not slug:
             return JSONResponse(
-                status_code=404,
-                content={"detail": "缺少账户标识"},
+                status_code=403,
+                content={"code": ERR_TENANT_NO_ACCESS, "msg": "未识别出租户"},
             )
         async with AsyncSessionLocal() as db:
             account = await resolve_account(slug, db)
         if not account:
             return JSONResponse(
-                status_code=404,
-                content={"detail": "账户不存在或已停用"},
+                status_code=403,
+                content={"code": ERR_RESOURCE_LOCKED, "msg": "服务不可用"},
             )
         t_tok = tenant_ctx.set(account.id)
         s_tok = schema_ctx.set(f"tenant_{slug}")

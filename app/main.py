@@ -13,9 +13,7 @@ from pathlib import Path
 import uvicorn
 
 from app.core.config import CLIENT_PORT, MANAGEMENT_PORT, ADMIN_PORT
-from app.apps.client_app import client_app
-from app.apps.management_app import management_app
-from app.apps.admin_app import admin_app
+from app.oobe.detector import is_initialized
 
 logger = logging.getLogger(__name__)
 
@@ -69,22 +67,35 @@ async def _start_servers():
         "loggers": {},
     }
 
+    if is_initialized():
+        from app.apps.client_app import client_app
+        from app.apps.management_app import management_app
+        from app.apps.admin_app import admin_app
+
+        c_app, m_app, a_app = client_app, management_app, admin_app
+    else:
+        from app.core.security.oobe_guard import generate_oobe_codes
+        from app.apps.oobe_apps import oobe_stub_app, oobe_admin_app
+
+        generate_oobe_codes()
+        c_app, m_app, a_app = oobe_stub_app, oobe_stub_app, oobe_admin_app
+
     c_cfg = uvicorn.Config(
-        client_app,
+        c_app,
         host="0.0.0.0",
         port=CLIENT_PORT,
         log_config=uv_log_config,
         access_log=False,
     )
     m_cfg = uvicorn.Config(
-        management_app,
+        m_app,
         host="0.0.0.0",
         port=MANAGEMENT_PORT,
         log_config=uv_log_config,
         access_log=False,
     )
     a_cfg = uvicorn.Config(
-        admin_app,
+        a_app,
         host="0.0.0.0",
         port=ADMIN_PORT,
         log_config=uv_log_config,

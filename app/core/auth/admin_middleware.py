@@ -18,6 +18,7 @@ from app.core.config import REDIS_DB_AUTH
 from app.core.redis.accessor import get_redis
 from app.core.tenant.context import get_tenant_id
 from app.core.client_ip import get_client_ip_from_request
+from app.core.security.codes import ERR_PERM_DENIED, ERR_AUTH_MISSING, ERR_AUTH_INVALID
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,15 @@ logger = logging.getLogger(__name__)
 _EXEMPT = {"/", "/user/auth", "/user/apply"}
 # 免认证路径前缀（前缀匹配）
 _EXEMPT_PREFIXES = ("/user/availability/",)
-_DENY = JSONResponse(status_code=403, content={"detail": "权限不足"})
-_NO_AUTH = JSONResponse(status_code=401, content={"detail": "未认证"})
+_DENY = JSONResponse(
+    status_code=403, content={"code": ERR_PERM_DENIED, "msg": "越权操作"}
+)
+_NO_AUTH = JSONResponse(
+    status_code=401, content={"code": ERR_AUTH_MISSING, "msg": "未受权访客"}
+)
+_BAD_AUTH = JSONResponse(
+    status_code=401, content={"code": ERR_AUTH_INVALID, "msg": "凭据作废"}
+)
 
 
 class AdminAuthMiddleware(BaseHTTPMiddleware):
@@ -63,7 +71,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
                 return await call_next(request)
         client_ip = get_client_ip_from_request(request)
         logger.warning("认证失败：ip=%s path=%s", client_ip, path)
-        return _DENY
+        return _BAD_AUTH
 
 
 async def _check_legacy_token(token: str, path: str = "") -> bool:

@@ -6,15 +6,16 @@
 
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 from app.api.management.router import router as mgr_router
 from app.api.management.account_router import router as acct_router
 from app.core.auth.admin_middleware import AdminAuthMiddleware
 from app.core.auth.account_middleware import AccountContextMiddleware
 from app.core.logging import RequestLoggingMiddleware, PORT_TAG_MGMT
+from app.core.security.middleware import CCProtectMiddleware
+from app.core.security.errors import apply_app_safeguards
 
 logger = logging.getLogger(__name__)
 
@@ -39,17 +40,14 @@ management_app.add_middleware(AccountContextMiddleware, require_membership=True)
 # 会话令牌认证中间件
 management_app.add_middleware(AdminAuthMiddleware)
 management_app.add_middleware(RequestLoggingMiddleware, port_tag=PORT_TAG_MGMT)
+management_app.add_middleware(CCProtectMiddleware)
+
+# 应用自定义防线机制
+apply_app_safeguards(management_app)
 
 # 挂载路由
 management_app.include_router(mgr_router)
 management_app.include_router(acct_router)
-
-
-@management_app.exception_handler(Exception)
-async def _global_exc(request: Request, exc: Exception):
-    """全局异常拦截，避免泄露内部信息。"""
-    logger.exception("未处理异常: %s %s", request.url.path, exc)
-    return JSONResponse(status_code=500, content={"detail": "服务器内部错误"})
 
 
 @management_app.get("/")

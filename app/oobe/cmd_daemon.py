@@ -5,7 +5,6 @@
 """
 
 import asyncio
-import sys
 
 
 def handle_daemon() -> None:
@@ -14,11 +13,6 @@ def handle_daemon() -> None:
     前台运行所有服务（Client / Management / Admin / gRPC），
     适合由 systemd 或终端直接管理。
     """
-    from app.oobe.detector import is_initialized
-
-    if not is_initialized():
-        print("❌ 系统尚未初始化。请先运行: cims init")
-        sys.exit(1)
 
     from app.core.config import validate_config
 

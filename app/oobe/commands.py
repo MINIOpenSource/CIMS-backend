@@ -12,7 +12,6 @@ def dispatch(args) -> None:
     """根据子命令分发到对应处理器。"""
     cmd = args.command
     handlers = {
-        "init": _h_init,
         "daemon": _h_daemon,
         "start": _h_start,
         "stop": _h_stop,
@@ -35,13 +34,6 @@ def dispatch(args) -> None:
     else:
         print(f"未知命令: {cmd}")
         sys.exit(1)
-
-
-def _h_init(_a):
-    """处理 init 子命令。"""
-    from app.oobe.cmd_init import handle_init
-
-    handle_init()
 
 
 def _h_daemon(_a):

@@ -97,6 +97,11 @@ def validate_config() -> None:
 
     仅由 serve 命令调用——init / help 等 CLI 子命令不会触发此检查。
     """
+    from app.oobe.detector import is_initialized
+
+    if not is_initialized():
+        return
+
     if not DATABASE_URL:
         raise RuntimeError(
             "必须通过 .cims/config.json、.env 或 DATABASE_URL 环境变量提供数据库连接"
